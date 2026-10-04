@@ -66,6 +66,12 @@ existing pattern that already fits — reuse it rather than duplicating.
    history and audit.
 7. If asked to review an idea the coach rejects, append it with a reason to
    `data/inbox/rejected/<sport>.jsonl` instead of deleting it.
+8. **After any promotion, re-run `scripts/build_bundle.py` and commit+push
+   `build/app-bundle.json` and `build/bundle-meta.json` — the published bundle
+   does not update itself.** The apps read a static file from
+   `raw.githubusercontent.com`; they never see `data/` directly, so a promoted
+   complex is invisible to them until the bundle is rebuilt *and* pushed.
+   Expect 1-2 minutes of CDN propagation delay after pushing.
 
 ## The three design filters (apply to every new complex)
 

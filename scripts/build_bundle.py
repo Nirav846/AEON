@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
-"""Build docs/app-bundle.json and docs/bundle-meta.json for the coaching app.
+"""Build build/app-bundle.json and build/bundle-meta.json for the coaching app.
 
 Reads every active record from the four data sources and writes one JSON object
 the app can fetch in a single request. Only `approved` records are included, plus
 records that carry no `status` field at all (see the note on concepts below).
 
 Outputs:
-  docs/app-bundle.json  - the full dataset
-  docs/bundle-meta.json - tiny manifest: version, generated_at, record_counts
+  build/app-bundle.json  - the full dataset
+  build/bundle-meta.json - tiny manifest: version, generated_at, record_counts
 
 The app fetches bundle-meta.json first, compares `version` against what it has
-cached, and only re-downloads the full bundle when the hash has changed.
+cached, and only re-downloads the full bundle when the hash has changed. Both
+files are served straight from the repo by GitHub, so the clients read a static
+file and never talk to a live database.
+
+Served at:
+  https://raw.githubusercontent.com/Nirav846/AEON/main/build/app-bundle.json
+  https://raw.githubusercontent.com/Nirav846/AEON/main/build/bundle-meta.json
 
 Note on concepts: data/concepts.jsonl records carry no `status` field - they are
 a different record type with no promote/reject lifecycle. A strict
@@ -23,7 +29,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DOCS = ROOT / "docs"
+BUILD = ROOT / "build"
 
 ACTIVE_STATUSES = {"approved"}   # explicit opt-in to inclusion
 SOURCES = [
@@ -77,13 +83,13 @@ ordered = {k: bundle[k] for k in ("complexes", "circuits", "conditioning", "conc
 ordered["version"] = version
 ordered["generated_at"] = generated_at
 
-DOCS.mkdir(exist_ok=True)
-bundle_path = DOCS / "app-bundle.json"
+BUILD.mkdir(exist_ok=True)
+bundle_path = BUILD / "app-bundle.json"
 with open(bundle_path, "w", encoding="utf-8") as f:
     json.dump(ordered, f, ensure_ascii=False, separators=(",", ":"))
     f.write("\n")
 
-meta_path = DOCS / "bundle-meta.json"
+meta_path = BUILD / "bundle-meta.json"
 with open(meta_path, "w", encoding="utf-8") as f:
     json.dump({"version": version, "generated_at": generated_at,
                "record_counts": counts}, f, ensure_ascii=False, indent=2)
