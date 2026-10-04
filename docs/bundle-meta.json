@@ -1,0 +1,10 @@
+{
+  "version": "58e89f24960431f3",
+  "generated_at": "2026-10-04T10:55:18+00:00",
+  "record_counts": {
+    "complexes": 95,
+    "circuits": 18,
+    "conditioning": 33,
+    "concepts": 15
+  }
+}
