@@ -1,0 +1,33 @@
+{"id": 1, "name": "Side-Deck Straddle Sprints", "sport": "Universal", "modality": "Treadmill", "work_to_rest": "7s sprint/20s rest", "male_target": "18.5-21.5 kmh", "female_target": "16-18.5 kmh", "status": "approved"}
+{"id": 2, "name": "High-Incline Power Hills", "sport": "Universal", "modality": "Treadmill", "work_to_rest": "12s sprint/24s rest", "male_target": "10% grade", "female_target": "10% grade", "status": "approved"}
+{"id": 3, "name": "Deadmill Sled Push", "sport": "Universal", "modality": "Treadmill", "work_to_rest": "10s drive/30s rest", "male_target": "Belt OFF", "female_target": "Belt OFF", "status": "approved"}
+{"id": 4, "name": "Lateral Shuffle Intervals", "sport": "Universal", "modality": "Treadmill", "work_to_rest": "15s L/15s R", "male_target": "2-3% incline", "female_target": "2-3% incline", "status": "approved"}
+{"id": 5, "name": "Incline Reverse Walking", "sport": "Universal", "modality": "Treadmill", "work_to_rest": "2 mins", "male_target": "10% grade, 3-4kmh", "female_target": "10% grade, 3-4kmh", "status": "approved"}
+{"id": 6, "name": "Gear Shift Rally", "sport": "Universal", "modality": "Treadmill", "work_to_rest": "90s wave", "male_target": "-", "female_target": "-", "status": "approved"}
+{"id": 7, "name": "Heavy Farmer Incline March", "sport": "Universal", "modality": "Treadmill", "work_to_rest": "45s work", "male_target": "15% grade", "female_target": "15% grade", "status": "approved"}
+{"id": 8, "name": "Backward Drag", "sport": "Universal", "modality": "Treadmill", "work_to_rest": "20s work", "male_target": "Belt OFF", "female_target": "Belt OFF", "status": "approved"}
+{"id": 9, "name": "Over-Speed Cadence Drill", "sport": "Universal", "modality": "Treadmill", "work_to_rest": "4-5s burst", "male_target": "Flat", "female_target": "Flat", "status": "approved"}
+{"id": 10, "name": "Anaerobic Rally", "sport": "Universal", "modality": "Elliptical", "work_to_rest": "8s max/22s rest", "male_target": "Level 15", "female_target": "Level 12", "status": "approved"}
+{"id": 11, "name": "Reverse-Pedal Lactic Flush", "sport": "Universal", "modality": "Elliptical", "work_to_rest": "15s hard/30s easy", "male_target": "-", "female_target": "-", "status": "approved"}
+{"id": 12, "name": "Baseline Bursts", "sport": "Universal", "modality": "S-Bike", "work_to_rest": "8s sprint/22s rest", "male_target": ">600W", "female_target": ">420W", "status": "approved"}
+{"id": 13, "name": "Spider Run", "sport": "Tennis", "modality": "Court", "work_to_rest": "-", "male_target": "<15.2s", "female_target": "<16.5s", "status": "approved"}
+{"id": 14, "name": "Baseline Fan Suicide", "sport": "Tennis", "modality": "Court", "work_to_rest": "-", "male_target": "<27.5s", "female_target": "<31s", "status": "approved"}
+{"id": 15, "name": "Drop-Shot Attack", "sport": "Tennis", "modality": "Court", "work_to_rest": "-", "male_target": "<5.8s", "female_target": "<6.8s", "status": "approved"}
+{"id": 16, "name": "Big X Agility", "sport": "Tennis", "modality": "Court", "work_to_rest": "-", "male_target": "<17.5s", "female_target": "<19.8s", "status": "approved"}
+{"id": 17, "name": "30-Shot Baseline War", "sport": "Tennis", "modality": "Court", "work_to_rest": "-", "male_target": "<23.5s", "female_target": "<26.5s", "status": "approved"}
+{"id": 18, "name": "Serve Volley Shock", "sport": "Tennis", "modality": "Court", "work_to_rest": "-", "male_target": "<5.2s", "female_target": "<6.2s", "status": "approved"}
+{"id": 19, "name": "Hexagon Split-Step", "sport": "Tennis", "modality": "Court", "work_to_rest": "-", "male_target": "<11.5s", "female_target": "<13s", "status": "approved"}
+{"id": 20, "name": "6-Corner Shuttle", "sport": "Badminton", "modality": "Court", "work_to_rest": "-", "male_target": "<13.5s", "female_target": "<14.8s", "status": "approved"}
+{"id": 21, "name": "Scissor to Net Linear Shuttle", "sport": "Badminton", "modality": "Court", "work_to_rest": "-", "male_target": "<9.8s", "female_target": "<11.2s", "status": "approved"}
+{"id": 22, "name": "Lateral Tramline Defense", "sport": "Badminton", "modality": "Court", "work_to_rest": "-", "male_target": "<8.5s", "female_target": "<9.8s", "status": "approved"}
+{"id": 23, "name": "20-Shuttle Rapid Feeding", "sport": "Badminton", "modality": "Court", "work_to_rest": "35s work", "male_target": "-", "female_target": "-", "status": "approved"}
+{"id": 24, "name": "Lactate Continuous Clearance", "sport": "Cricket", "modality": "Field", "work_to_rest": "200m fast/200m jog", "male_target": "-", "female_target": "-", "status": "approved"}
+{"id": 25, "name": "15s/15s Eurofit MAS", "sport": "Cricket", "modality": "Field", "work_to_rest": "15s/15s", "male_target": "-", "female_target": "-", "status": "approved"}
+{"id": 26, "name": "Boundary Chase Arc", "sport": "Cricket", "modality": "Field", "work_to_rest": "40m curve sprint + slide", "male_target": "-", "female_target": "-", "status": "approved"}
+{"id": 27, "name": "5-10-15m Linear Decel Shuttle", "sport": "Cricket", "modality": "Field", "work_to_rest": "-", "male_target": "-", "female_target": "-", "status": "approved"}
+{"id": 28, "name": "Curved S-Run Agility", "sport": "Cricket", "modality": "Field", "work_to_rest": "-", "male_target": "-", "female_target": "-", "status": "approved"}
+{"id": 29, "name": "Compromised Run (Sled Sim)", "sport": "Hyrox", "modality": "Treadmill & Sled", "work_to_rest": "1km Run (Moderate) + 50m Heavy Sled Push / 90s Rest", "male_target": "Run < 4:30/km, Push 152kg", "female_target": "Run < 5:00/km, Push 102kg", "status": "approved"}
+{"id": 30, "name": "Lactic \"Rox\" Shandy", "sport": "Hyrox", "modality": "SkiErg & Row", "work_to_rest": "500m Ski / 500m Row (Continuous) x 4 Rounds", "male_target": "< 1:50/500m pace", "female_target": "< 2:05/500m pace", "status": "approved"}
+{"id": 31, "name": "Wall Ball / Run Threshold", "sport": "Hyrox", "modality": "Court & Treadmill", "work_to_rest": "400m Run + 25 Wall Balls x 5 Rounds", "male_target": "400m < 90s, 6-9kg WB", "female_target": "400m < 105s, 4-6kg WB", "status": "approved"}
+{"id": 32, "name": "Heavy Carry Engine Builder", "sport": "Hyrox", "modality": "Treadmill & Turf", "work_to_rest": "3 min Run (15% Incline) + 1 min Heavy Farmers Carry (Continuous)", "male_target": "Incline 6km/h, 2x24kg Carry", "female_target": "Incline 5km/h, 2x16kg Carry", "status": "approved"}
+{"id": 33, "name": "Burpee Broad Jump Overspeed", "sport": "Hyrox", "modality": "Turf & Air Bike", "work_to_rest": "10 Broad Jumps + 30s Air Bike Sprint / 60s Rest x 6 Rounds", "male_target": "BBJ in <30s, Bike > 600W", "female_target": "BBJ in <40s, Bike > 400W", "status": "approved"}

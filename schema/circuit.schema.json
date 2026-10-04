@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AEON Circuit",
+  "type": "object",
+  "required": ["id", "name", "sport", "role", "format", "stations", "energy_system", "status"],
+  "properties": {
+    "id": { "type": "integer" },
+    "name": { "type": "string" },
+    "sport": { "type": "string", "enum": ["Cricket", "Tennis", "Badminton", "Pickleball", "Hyrox", "Racquet Sports", "Universal"] },
+    "role": { "type": "string" },
+    "format": { "type": "string" },
+    "stations": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["execution"],
+        "properties": {
+          "execution": { "type": "string" },
+          "ref_type": { "type": ["string", "null"], "enum": ["complex", "conditioning", null] },
+          "ref_id": { "type": ["integer", "null"] }
+        }
+      }
+    },
+    "energy_system": { "type": "string" },
+    "coach_speak": { "type": "string" },
+    "status": { "type": "string", "enum": ["proposed", "approved", "rejected"] }
+  }
+}

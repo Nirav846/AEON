@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AEON Conditioning Protocol",
+  "type": "object",
+  "required": ["id", "name", "sport", "modality", "work_to_rest", "status"],
+  "properties": {
+    "id": { "type": "integer" },
+    "name": { "type": "string" },
+    "sport": { "type": "string" },
+    "modality": { "type": "string" },
+    "work_to_rest": { "type": "string" },
+    "male_target": { "type": "string" },
+    "female_target": { "type": "string" },
+    "status": { "type": "string", "enum": ["proposed", "approved", "rejected"] }
+  }
+}

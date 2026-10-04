@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AEON Complex",
+  "type": "object",
+  "required": ["id", "name", "sport", "role", "category", "focus", "execution", "swap", "equipment", "status"],
+  "properties": {
+    "id": { "type": "integer", "minimum": 1 },
+    "pattern_id": { "type": ["string", "null"] },
+    "supersedes": { "type": ["integer", "null"], "minimum": 1 },
+    "name": { "type": "string", "minLength": 3 },
+    "sport": { "type": "string", "enum": ["Cricket", "Tennis", "Badminton", "Pickleball", "Hyrox", "Universal"] },
+    "role": { "type": "string" },
+    "category": { "type": "string", "enum": ["Multi", "Primer", "Core", "Knee Dom", "Hip Dom", "Push", "Pull"] },
+    "focus": { "type": "string" },
+    "execution": { "type": "string", "minLength": 5 },
+    "swap": { "type": "string", "minLength": 5 },
+    "equipment": { "type": "array", "items": { "type": "string" } },
+    "swap_equipment": { "type": "array", "items": { "type": "string" } },
+    "also_suits": { "type": "array", "items": { "type": "string", "enum": ["Cricket", "Tennis", "Badminton", "Pickleball", "Hyrox", "Universal"] } },
+    "also_suits_roles": { "type": "array", "items": { "type": "string", "enum": ["All", "Batsman", "Pacer", "Spinner", "WK"] } },
+    "sources": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["proposed", "approved", "rejected", "superseded"] },
+    "manual": {
+      "type": "object",
+      "properties": {
+        "why": { "type": "string" },
+        "cue": { "type": "string" }
+      },
+      "required": ["why", "cue"]
+    }
+  }
+}

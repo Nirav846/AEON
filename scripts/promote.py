@@ -1,0 +1,309 @@
+#!/usr/bin/env python3
+"""
+Promote complexes from the sport-scoped inbox (data/inbox/proposed/<sport>.jsonl)
+into data/complexes/, assigning each the next sequential id.
+
+SAFETY INVARIANT: this script NEVER writes without --confirm.
+Every invocation that would write (promote, supersede, or both) only PREVIEWS
+unless --confirm is explicitly passed. Previewing is the default; writing is the
+opt-in. A real write goes straight into data/complexes/ and cannot be undone by
+this script, so the safe path must be the default path.
+
+  promote.py badminton "Name"                     -> PREVIEW ONLY (no --confirm)
+  promote.py badminton "Name" --confirm           -> writes for real
+  promote.py badminton "Name" --supersede 21 --confirm
+  promote.py --all-approved --confirm             -> writes every approved record
+
+--dry-run is accepted as a no-op alias for backward compatibility. It is no
+longer load-bearing: the absence of --confirm is what makes this safe.
+
+Usage:
+  python3 scripts/promote.py "Exact Complex Name From Inbox"
+  python3 scripts/promote.py badminton "Exact Complex Name From Inbox"
+  python3 scripts/promote.py --all-approved     # everything marked approved,
+                                                 # across every sport inbox
+  python3 scripts/promote.py badminton --all-approved   # one sport only
+  python3 scripts/promote.py badminton "New Name" --supersede 21 --confirm
+                                                 # promote AND mark the old
+                                                 # approved record (id 21) as
+                                                 # "superseded" — kept for
+                                                 # history, not deleted
+
+  python3 scripts/promote.py                     # list everything pending
+  python3 scripts/promote.py --list             # same, explicit
+
+--supersede refuses to run at all if the target id does not exist or is not
+currently "approved". It never deletes the old record.
+
+Only the coach runs this with --confirm (or explicitly tells the agent to).
+
+Omitting the sport searches every data/inbox/proposed/*.jsonl, which is fine
+when the name is unique. Pass the sport when it is not, or when you want to be
+explicit about which inbox is being read.
+"""
+import json, sys, glob
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+INBOX_DIR = ROOT / "data/inbox/proposed"
+VALID_SPORTS = {"Cricket", "Tennis", "Badminton", "Pickleball", "Hyrox", "Universal"}
+
+
+def next_id():
+    max_id = 0
+    for path in glob.glob(str(ROOT / "data/complexes/*.jsonl")):
+        for line in open(path):
+            r = json.loads(line)
+            max_id = max(max_id, r.get("id", 0))
+    return max_id + 1
+
+
+def load_inbox(sport=None):
+    """Return [(source_path, record), ...] from the sport-scoped inbox.
+
+    sport=None reads every file in the inbox directory."""
+    paths = [INBOX_DIR / f"{sport.lower()}.jsonl"] if sport else sorted(INBOX_DIR.glob("*.jsonl"))
+    out = []
+    for path in paths:
+        if not path.exists():
+            continue
+        for line in open(path, encoding="utf-8"):
+            if line.strip():
+                out.append((path, json.loads(line)))
+    return out
+
+
+def save_inbox(records_by_path):
+    """Rewrite only the inbox files we actually touched.
+
+    Writes bytes with explicit LF so Windows text-mode translation cannot
+    silently rewrite line endings across the whole file."""
+    for path, records in records_by_path.items():
+        if not path.exists() and not records:
+            continue
+        body = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in records)
+        path.write_bytes(body.encode("utf-8"))
+
+
+def promote_one(record, new_id):
+    sport_file = ROOT / f"data/complexes/{record['sport'].lower()}.jsonl"
+    record = dict(record)
+    record["id"] = new_id
+    record["status"] = "approved"
+    with open(sport_file, "a", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    print(f"promoted '{record['name']}' -> {sport_file.name} as id {new_id}")
+
+
+def parse_args(argv):
+    """Return (sport, all_approved, name, supersede_id, confirm).
+
+    --dry-run is accepted and deliberately ignored: previewing is the default,
+    so an explicit "don't write" flag is redundant."""
+    sport = name = supersede = None
+    all_approved = confirm = False
+    i = 0
+    while i < len(argv):
+        a = argv[i]
+        if a == "--all-approved":
+            all_approved = True
+        elif a == "--confirm":
+            confirm = True
+        elif a in ("--dry-run", "--preview"):
+            pass  # no-op alias: preview is already the default
+        elif a == "--supersede":
+            i += 1
+            if i >= len(argv):
+                raise SystemExit("ERROR: --supersede requires an id, e.g. --supersede 21")
+            try:
+                supersede = int(argv[i])
+            except ValueError:
+                raise SystemExit(f"ERROR: --supersede expects a numeric id, got '{argv[i]}'")
+        elif a.startswith("--"):
+            raise SystemExit(f"ERROR: unknown flag '{a}'")
+        elif a.capitalize() in VALID_SPORTS and sport is None:
+            sport = a.capitalize()
+        elif name is None:
+            name = a
+        i += 1
+    return sport, all_approved, name, supersede, confirm
+
+
+def find_supersede_target(target_id, records):
+    """Locate the approved record to supersede. Returns ((path, raw_line, rec), error).
+
+    records is a list of plain inbox record dicts."""
+    sports = {r["sport"].lower() for r in records}
+    if len(sports) > 1:
+        return None, (f"--supersede {target_id} is ambiguous across {sorted(sports)}; "
+                      "pass the sport argument to scope it")
+    sport = sports.pop()
+    path = ROOT / f"data/complexes/{sport}.jsonl"
+    if not path.exists():
+        return None, f"{path.name} does not exist"
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        rec = json.loads(line)
+        if rec.get("id") == target_id:
+            st = rec.get("status")
+            if st != "approved":
+                return None, (f"id {target_id} ('{rec.get('name')}') has status "
+                              f"'{st}', not 'approved' — nothing to supersede")
+            return (path, line, rec), None
+    return None, f"no record with id {target_id} in {path.name}"
+
+
+def apply_supersede(target):
+    """Rewrite the target line in place with status 'superseded'. Returns new id."""
+    path, old_line, rec = target
+    new_line = old_line.replace('"status": "approved"', '"status": "superseded"', 1)
+    if new_line == old_line:  # formatting differed, fall back to a clean dump
+        new_line = json.dumps({**rec, "status": "superseded"}, ensure_ascii=False)
+    json.loads(new_line)  # must still be valid JSON before we overwrite anything
+    lines = path.read_text(encoding="utf-8").splitlines()
+    out = []
+    for line in lines:
+        if line.strip() and json.loads(line).get("id") == rec["id"]:
+            out.append(new_line)
+        else:
+            out.append(line)
+    path.write_bytes(("\n".join(out) + "\n").encode("utf-8"))
+
+
+def select(inbox, sport, flag, name):
+    """Choose which inbox records to promote. Returns (matches, error_or_None)."""
+    if flag:
+        return [(p, r) for p, r in inbox if r.get("status") == "approved"], None
+    if name:
+        matches = [(p, r) for p, r in inbox if r["name"] == name]
+        if not matches:
+            where = f" in {sport.lower()}.jsonl" if sport else " in any inbox file"
+            return [], f"no inbox entry named '{name}' found{where}"
+        return matches, None
+    return [], None
+
+
+def main():
+    argv = sys.argv[1:]
+    if not argv:
+        print(__doc__)
+        return
+
+    if "--list" in argv:
+        rows = load_inbox()
+        if not rows:
+            print("inbox is empty — nothing pending")
+            return
+        for path, r in rows:
+            print(f"  {path.name:20s} id {r['id']:>4}  [{r.get('status'):9s}] {r['name']}")
+        return
+
+    sport, all_approved, name, supersede, confirm = parse_args(argv)
+
+    inbox = load_inbox(sport)
+    if not inbox:
+        scope = f"data/inbox/proposed/{sport.lower()}.jsonl" if sport else "the inbox"
+        print(f"{scope} is empty — nothing to promote")
+        return
+
+    to_promote, error = select(inbox, sport, all_approved, name)
+    if error:
+        print(error)
+        return
+
+    if not all_approved and not name:
+        # no selector given — listing mode, never writes
+        print(f"pending in {'data/inbox/proposed/' if not sport else sport.lower() + '.jsonl'}:")
+        for path, r in inbox:
+            mark = "would promote (--all-approved)" if r.get("status") == "approved" else ""
+            print(f"  {path.name:20s} id {r['id']:>4}  [{r.get('status'):9s}] {r['name']}  {mark}")
+        n_approved = sum(1 for _, r in inbox if r.get("status") == "approved")
+        print(f"\nno name or --all-approved given, so nothing selected. "
+              f"{n_approved} of {len(inbox)} pending record(s) have status 'approved'.")
+        print("Nothing written.")
+        return
+
+    if not to_promote:
+        print("nothing matches — 0 record(s) would be promoted. Nothing written.")
+        return
+
+    # --- pre-flight: resolve the supersede target BEFORE any write happens ---
+    sup_target = sup_err = None
+    if supersede is not None:
+        sup_target, sup_err = find_supersede_target(supersede, [r for _, r in to_promote])
+        if sup_err:
+            print(f"REFUSING TO RUN: {sup_err}")
+            return
+
+    # --- preview (always printed, so a --confirm run is auditable) ---
+    nid = next_id()
+    first_free = nid
+    selected = {id(r) for _, r in to_promote}
+    plan = []
+    for _, r in to_promote:
+        sport_file = f"data/complexes/{r['sport'].lower()}.jsonl"
+        plan.append((r, sport_file, nid))
+        print(f"would promote inbox id {r['id']} '{r['name']}'\n"
+              f"            -> {sport_file} as id {nid} (status 'approved')")
+        nid += 1
+
+    # A single promotion from a file that has several records pending always
+    # previews as the first free id, because nothing has been written yet. That
+    # is true but useless across a sitting's worth of separate --dry-run runs:
+    # they all print the same number. Show the queue so the sequence is legible.
+    # Assigned ids above are untouched -- they stay the genuinely free next id,
+    # so promoting out of order leaves no gap in the sequence.
+    shown = set()
+    for path, r in to_promote:
+        if path in shown:
+            continue
+        shown.add(path)
+        rows = sorted(((rr["id"], rr) for p, rr in inbox if p == path),
+                      key=lambda t: t[0])
+        if len(rows) < 2:
+            continue
+        print(f"\n  pending in {path.name}, in the order they would be promoted "
+              f"(first free id {first_free}):")
+        for pos, (iid, rr) in enumerate(rows):
+            mark = "   <-- this run" if id(rr) in selected else ""
+            print(f"    {first_free + pos:>4}  inbox id {iid:>4}  {rr['name']}{mark}")
+        print(f"    (each --confirm run claims the first free id, so promoting these"
+              f"\n     one at a time lands them on {first_free}..{first_free + len(rows) - 1}.)")
+
+    if sup_target:
+        path, line, rec = sup_target
+        print(f"would mark id {rec['id']} '{rec['name']}' in {path.name}\n"
+              f"            status 'approved' -> 'superseded' (record kept, not deleted)")
+
+    if not confirm:
+        # SAFETY INVARIANT: no --confirm means no write, regardless of other flags.
+        print(f"\nPREVIEW ONLY — nothing written. {len(to_promote)} record(s) would be promoted"
+              + (", 1 record superseded" if sup_target else "")
+              + f", {len(inbox) - len(to_promote)} would remain in the inbox.")
+        print(f"Re-run with --confirm to apply: add --confirm to this exact command.")
+        return
+
+    # --- write path (only reachable with --confirm) ---
+    for r, _, new_id in plan:
+        promote_one(r, new_id)
+    if sup_target:
+        apply_supersede(sup_target)
+        print(f"marked id {sup_target[2]['id']} '{sup_target[2]['name']}' "
+              f"as superseded in {sup_target[0].name}")
+
+    promoted_ids = {id(r) for _, r in to_promote}
+    touched = {}
+    for path, r in inbox:
+        bucket = touched.setdefault(path, [])
+        if id(r) not in promoted_ids:
+            bucket.append(r)
+    save_inbox(touched)
+
+    print(f"{len(to_promote)} record(s) promoted"
+          + (", 1 record superseded." if sup_target else ".")
+          + " Run scripts/build_index.py next.")
+
+
+if __name__ == "__main__":
+    main()
