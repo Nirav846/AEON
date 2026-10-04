@@ -23,21 +23,34 @@ a different record type with no promote/reject lifecycle. A strict
 `status == "approved"` filter would silently drop all 15 of them, so a missing
 status is treated as active. Anything explicitly proposed, rejected or superseded
 is still excluded wherever the field is present.
+
+compute_version() is imported by validate.py (staleness check) and called by
+promote.py, so there is exactly one definition of what the version hash means.
+Two implementations of this would drift, and a drift here is invisible: the
+staleness check would compare the live hash against a differently-computed one
+and report a permanent false positive.
 """
 import json, glob, hashlib
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 BUILD = ROOT / "build"
+KINDS = ("complexes", "circuits", "conditioning", "concepts")
 
 ACTIVE_STATUSES = {"approved"}   # explicit opt-in to inclusion
-SOURCES = [
-    ("complexes", sorted(glob.glob(str(ROOT / "data/complexes/*.jsonl")))),
-    ("circuits", [ROOT / "data/circuits.jsonl"]),
-    ("conditioning", [ROOT / "data/conditioning.jsonl"]),
-    ("concepts", [ROOT / "data/concepts.jsonl"]),
-]
+
+
+def source_paths():
+    """Resolve the four data sources. Globbed at call time, not import time, so
+    a sandbox or test copy rooted elsewhere picks up its own files."""
+    return [
+        ("complexes", sorted(glob.glob(str(ROOT / "data/complexes/*.jsonl")))),
+        ("circuits", [ROOT / "data/circuits.jsonl"]),
+        ("conditioning", [ROOT / "data/conditioning.jsonl"]),
+        ("concepts", [ROOT / "data/concepts.jsonl"]),
+    ]
 
 
 def is_active(rec):
@@ -45,65 +58,84 @@ def is_active(rec):
     return status is None or status in ACTIVE_STATUSES
 
 
-bundle, counts, excluded = {}, {}, []
-
-for kind, paths in SOURCES:
-    rows = []
-    for path in paths:
-        if not Path(path).exists():
-            print(f"  ! missing source, skipped: {path}")
-            continue
-        for lineno, line in enumerate(open(path, encoding="utf-8"), 1):
-            if not line.strip():
+def load_active():
+    """Return (bundle, counts, excluded, missing). Nothing is written."""
+    bundle, counts, excluded, missing = {}, {}, [], []
+    for kind, paths in source_paths():
+        rows = []
+        for path in paths:
+            if not Path(path).exists():
+                missing.append(str(path))
                 continue
-            rec = json.loads(line)
-            if not is_active(rec):
-                excluded.append((kind, rec.get("id"), rec.get("status")))
-                continue
-            rows.append(rec)
-    rows.sort(key=lambda r: r.get("id", 0))
-    bundle[kind] = rows
-    counts[kind] = len(rows)
+            for line in open(path, encoding="utf-8"):
+                if not line.strip():
+                    continue
+                rec = json.loads(line)
+                if not is_active(rec):
+                    excluded.append((kind, rec.get("id"), rec.get("status")))
+                    continue
+                rows.append(rec)
+        rows.sort(key=lambda r: r.get("id", 0))
+        bundle[kind] = rows
+        counts[kind] = len(rows)
+    return bundle, counts, excluded, missing
 
-# Content hash over the payload itself, so the version tracks the DATA and not
-# the clock. generated_at is excluded deliberately - otherwise every run would
-# produce a new version and the app would re-download for no reason.
-payload = json.dumps(
-    {"complexes": bundle["complexes"], "circuits": bundle["circuits"],
-     "conditioning": bundle["conditioning"], "concepts": bundle["concepts"]},
-    sort_keys=True, ensure_ascii=False, separators=(",", ":"),
-)
-version = hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
-generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
-bundle["version"] = version
-bundle["generated_at"] = generated_at
-# Key order for the written file: the four arrays first, then the metadata.
-ordered = {k: bundle[k] for k in ("complexes", "circuits", "conditioning", "concepts")}
-ordered["version"] = version
-ordered["generated_at"] = generated_at
+def compute_version(bundle):
+    """Content hash of the payload. Deliberately excludes generated_at, so the
+    version tracks the DATA and not the clock - otherwise every rebuild would
+    produce a new version and the app would re-download for no reason."""
+    payload = json.dumps(
+        {k: bundle[k] for k in KINDS},
+        sort_keys=True, ensure_ascii=False, separators=(",", ":"),
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
-BUILD.mkdir(exist_ok=True)
-bundle_path = BUILD / "app-bundle.json"
-with open(bundle_path, "w", encoding="utf-8") as f:
-    json.dump(ordered, f, ensure_ascii=False, separators=(",", ":"))
-    f.write("\n")
 
-meta_path = BUILD / "bundle-meta.json"
-with open(meta_path, "w", encoding="utf-8") as f:
-    json.dump({"version": version, "generated_at": generated_at,
-               "record_counts": counts}, f, ensure_ascii=False, indent=2)
-    f.write("\n")
+def current_version():
+    """The version the committed data/ would produce right now."""
+    bundle, _, _, _ = load_active()
+    return compute_version(bundle)
 
-size = bundle_path.stat().st_size
-print(f"wrote {bundle_path.relative_to(ROOT)}  ({size:,} bytes, {size/1024:.1f} KB)")
-print(f"wrote {meta_path.relative_to(ROOT)}  ({meta_path.stat().st_size:,} bytes)")
-print(f"  version      : {version}")
-print(f"  generated_at : {generated_at}")
-print(f"  records      : {counts}  total={sum(counts.values())}")
-if excluded:
-    from collections import Counter
-    by = Counter(f"{k}/{s}" for k, _, s in excluded)
-    print(f"  excluded     : {len(excluded)} ({', '.join(f'{k}={v}' for k, v in sorted(by.items()))})")
-else:
-    print("  excluded     : none")
+
+def build():
+    bundle, counts, excluded, missing = load_active()
+    version = compute_version(bundle)
+    generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+    for path in missing:
+        print(f"  ! missing source, skipped: {path}")
+
+    ordered = {k: bundle[k] for k in KINDS}
+    ordered["version"] = version
+    ordered["generated_at"] = generated_at
+
+    BUILD.mkdir(exist_ok=True)
+    bundle_path = BUILD / "app-bundle.json"
+    with open(bundle_path, "w", encoding="utf-8") as f:
+        json.dump(ordered, f, ensure_ascii=False, separators=(",", ":"))
+        f.write("\n")
+
+    meta_path = BUILD / "bundle-meta.json"
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump({"version": version, "generated_at": generated_at,
+                   "record_counts": counts}, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+
+    size = bundle_path.stat().st_size
+    print(f"wrote {bundle_path.relative_to(ROOT)}  ({size:,} bytes, {size/1024:.1f} KB)")
+    print(f"wrote {meta_path.relative_to(ROOT)}  ({meta_path.stat().st_size:,} bytes)")
+    print(f"  version      : {version}")
+    print(f"  generated_at : {generated_at}")
+    print(f"  records      : {counts}  total={sum(counts.values())}")
+    if excluded:
+        by = Counter(f"{k}/{s}" for k, _, s in excluded)
+        print(f"  excluded     : {len(excluded)} "
+              f"({', '.join(f'{k}={v}' for k, v in sorted(by.items()))})")
+    else:
+        print("  excluded     : none")
+    return version
+
+
+if __name__ == "__main__":
+    build()

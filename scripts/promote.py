@@ -37,11 +37,16 @@ currently "approved". It never deletes the old record.
 
 Only the coach runs this with --confirm (or explicitly tells the agent to).
 
+A successful --confirm promotion also regenerates build/app-bundle.json and
+build/bundle-meta.json, so the published bundle cannot silently fall behind the
+data. It does NOT commit or push - that stays a deliberate, separate step. If the
+bundle build fails, the promotion stands and the failure is reported loudly.
+
 Omitting the sport searches every data/inbox/proposed/*.jsonl, which is fine
 when the name is unique. Pass the sport when it is not, or when you want to be
 explicit about which inbox is being read.
 """
-import json, sys, glob
+import json, sys, glob, subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -184,6 +189,59 @@ def select(inbox, sport, flag, name):
     return [], None
 
 
+def rebuild_bundle():
+    """Regenerate build/app-bundle.json + build/bundle-meta.json after a promotion.
+
+    Called only on the --confirm write path. The published bundle is served
+    straight from the repo by GitHub, so a complex promoted without a rebuild is
+    invisible to the apps until the bundle is rebuilt AND pushed.
+
+    Deliberately does NOT commit or push. A promotion is a data-correctness
+    decision the coach makes; publishing it is a separate, deliberate act.
+
+    If the build fails, it fails LOUDLY and does NOT roll anything back. The
+    promotion has already been written and is correct; the bundle is merely
+    stale. Rolling back a coaching decision because a publishing step hiccuped
+    would be worse than the staleness it was trying to avoid.
+    """
+    script = ROOT / "scripts/build_bundle.py"
+    if not script.exists():
+        print("\nBUNDLE REBUILD FAILED: scripts/build_bundle.py not found.")
+        print("  The promotion above SUCCEEDED and is safely written.")
+        print("  The published bundle is now STALE - run scripts/build_bundle.py by hand.")
+        return False
+    try:
+        proc = subprocess.run([sys.executable, str(script)],
+                              capture_output=True, text=True)
+    except Exception as exc:                      # noqa: BLE001 - never mask the promotion
+        print(f"\nBUNDLE REBUILD FAILED to launch: {exc}")
+        print("  The promotion above SUCCEEDED and is safely written.")
+        print("  The published bundle is now STALE - run scripts/build_bundle.py by hand.")
+        return False
+    if proc.returncode != 0:
+        print("\n" + "!" * 68)
+        print("BUNDLE REBUILD FAILED - the published bundle is now STALE.")
+        print("!" * 68)
+        print(f"  exit code: {proc.returncode}")
+        if proc.stdout.strip():
+            print("  stdout:\n" + "\n".join("    " + l for l in proc.stdout.strip().splitlines()))
+        if proc.stderr.strip():
+            print("  stderr:\n" + "\n".join("    " + l for l in proc.stderr.strip().splitlines()))
+        print("\n  The promotion above SUCCEEDED and is safely written.")
+        print("  Nothing was rolled back - a failed publish must never undo a")
+        print("  coaching decision. Fix the cause, then re-run:")
+        print("      python scripts/build_bundle.py")
+        print("  until the apps have been told about this promotion.")
+        return False
+    for line in proc.stdout.strip().splitlines():
+        print("  " + line)
+    print("\nBundle rebuilt. Still TODO (deliberately NOT automatic):")
+    print("  git add build/ && git commit && git push")
+    print("  Apps read the bundle from raw.githubusercontent.com, so they will keep")
+    print("  serving the old version until this is pushed (1-2 min CDN delay after).")
+    return True
+
+
 def main():
     argv = sys.argv[1:]
     if not argv:
@@ -303,6 +361,9 @@ def main():
     print(f"{len(to_promote)} record(s) promoted"
           + (", 1 record superseded." if sup_target else ".")
           + " Run scripts/build_index.py next.")
+
+    # Publish step, last, only on the write path. Never reached without --confirm.
+    rebuild_bundle()
 
 
 if __name__ == "__main__":

@@ -256,6 +256,50 @@ def check_circuit_refs(circuit_paths, complex_ids, conditioning_ids):
                     yield_error(path, line_no, f"circuit '{r.get('name')}' references conditioning id {rid} which does not exist")
 
 
+def check_bundle_freshness():
+    """Warn when build/bundle-meta.json no longer matches what data/ would produce.
+
+    The apps read build/app-bundle.json from raw.githubusercontent.com, so a
+    stale bundle means the apps silently serve outdated data no matter how clean
+    data/ is. That failure is invisible by construction - nothing in the records
+    is wrong - so it needs its own check.
+
+    Covers drift that promote.py's auto-rebuild cannot: a hand edit to a data
+    file, a failed build, a rebuild that was never committed, or a checkout
+    that landed data/ without the bundle.
+
+    Deliberately a WARNING, not an error. Stale data published is bad, but the
+    records themselves are valid and the fix is a rebuild, not a data change -
+    blocking a validation run over it would train people to ignore this output.
+    """
+    meta_path = ROOT / "build/bundle-meta.json"
+    rel = "build/bundle-meta.json"
+    if not meta_path.exists():
+        yield_warning(rel, 1, "does not exist - run scripts/build_bundle.py")
+        return
+    try:
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        yield_warning(rel, 1, f"is unreadable ({exc}) - run scripts/build_bundle.py")
+        return
+
+    committed = meta.get("version")
+    try:
+        if str(ROOT / "scripts") not in sys.path:
+            sys.path.insert(0, str(ROOT / "scripts"))
+        from build_bundle import current_version
+        live = current_version()
+    except Exception as exc:                      # noqa: BLE001 - a broken check must not fail the run
+        yield_warning(rel, 1, f"could not recompute the bundle version ({exc}) - skipping staleness check")
+        return
+
+    if committed != live:
+        yield_warning(rel, 1,
+            f"published bundle is STALE: meta says version {committed!r} but data/ now "
+            f"hashes to {live!r}. The apps are serving outdated data. Fix with: "
+            f"python scripts/build_bundle.py && git add build/ && git commit && git push")
+
+
 def main():
     complex_paths = glob.glob(str(ROOT / "data/complexes/*.jsonl"))
     inbox_paths = (glob.glob(str(ROOT / "data/inbox/proposed/*.jsonl")) +
@@ -281,6 +325,7 @@ def main():
             for _, r in load_jsonl(path):
                 conditioning_ids.add(r.get("id"))
         check_circuit_refs(circuit_paths, complex_ids, conditioning_ids)
+        check_bundle_freshness()
 
     if ERRORS:
         print(f"FAILED — {len(ERRORS)} issue(s):\n")
