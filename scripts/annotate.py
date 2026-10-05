@@ -50,6 +50,63 @@ EXIT_REFUSED = 2
 EXIT_ROLLED_BACK = 3
 
 
+def rebuild_bundle():
+    """Regenerate build/app-bundle.json + build/bundle-meta.json after a write.
+
+    Mirrors promote.py exactly. Called only on the --confirm write path. The
+    published bundle is served straight from the repo by GitHub, so goals
+    annotated without a rebuild are invisible to the apps until the bundle is
+    rebuilt AND pushed.
+
+    Deliberately does NOT commit or push. That is a separate, deliberate act.
+
+    If the build fails, it fails LOUDLY and does NOT roll anything back. The
+    annotation has already been written and is correct; the bundle is merely
+    stale. Rolling back a coaching decision because a publishing step hiccuped
+    would be worse than the staleness it was trying to avoid.
+    """
+    script = os.path.join(ROOT, "scripts", "build_bundle.py")
+    if not os.path.exists(script):
+        print("\nBUNDLE REBUILD FAILED: scripts/build_bundle.py not found.")
+        print("  The annotation above SUCCEEDED and is safely written.")
+        print("  The published bundle is now STALE - run scripts/build_bundle.py by hand.")
+        return False
+
+    env = dict(os.environ, PYTHONIOENCODING="utf-8")
+    try:
+        proc = subprocess.run([sys.executable, script], cwd=ROOT,
+                              capture_output=True, text=True,
+                              encoding="utf-8", errors="replace", env=env)
+    except OSError as exc:
+        print("\nBUNDLE REBUILD FAILED to launch: {}".format(exc))
+        print("  The annotation above SUCCEEDED and is safely written.")
+        print("  The published bundle is now STALE - run scripts/build_bundle.py by hand.")
+        return False
+
+    if proc.returncode != 0:
+        print("\n" + "!" * 68)
+        print("BUNDLE REBUILD FAILED - the published bundle is now STALE.")
+        print("!" * 68)
+        print("  exit code: {}".format(proc.returncode))
+        if proc.stdout and proc.stdout.strip():
+            print("  stdout:\n" + "\n".join(
+                "    " + l for l in proc.stdout.strip().splitlines()))
+        if proc.stderr and proc.stderr.strip():
+            print("  stderr:\n" + "\n".join(
+                "    " + l for l in proc.stderr.strip().splitlines()))
+        print("\n  The annotation above SUCCEEDED and is safely written.")
+        print("  Nothing was rolled back - a failed publish must never undo a")
+        print("  coaching decision. Fix the cause, then re-run:")
+        print("      python scripts/build_bundle.py")
+        print("  until the apps have been told about this annotation.")
+        return False
+
+    if proc.stdout and proc.stdout.strip():
+        for line in proc.stdout.strip().splitlines():
+            print("  " + line)
+    return True
+
+
 def run_validate(label):
     """Run the repo validator over everything. Returns True if clean."""
     print("--- validate.py ({}) ---".format(label))
@@ -230,7 +287,7 @@ def main():
     if run_validate("after"):
         print("\nannotated id {} ({}): goals {}".format(
             args.id, record.get("name"), merged))
-        print("reminder: bundle not rebuilt - run scripts/build_bundle.py to publish")
+        rebuild_bundle()
         return EXIT_OK
 
     print("error: post-write validation failed - restoring original file")

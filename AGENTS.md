@@ -102,6 +102,11 @@ would mean ~95 duplicate record pairs and permanently retained superseded
 rows, for no audit value. The supersede workflow exists to track *corrections*
 to a complex's substance, and a goal phrase is not that.
 
+Note what this exemption does and does not cover. It exempts the *act of
+editing* `goals`, so a goal phrase never forks the record. It does not relax
+the `--confirm` invariant — an in-place rewrite of live approved data is
+warranted the same guard rails as a promotion.
+
 **Why it is still dangerous.** `promote.py` only ever appends, so a mistake
 is fixed by deleting a line. `annotate.py` rewrites a live approved record in
 place, so a mistake silently corrupts data. It therefore takes the same
@@ -125,10 +130,18 @@ precautions as `promote.py`, plus two more:
 Swing" is both id 81 (`superseded`) and id 148 (`approved`); only 148 is
 annotatable, and keying on the name would make that choice ambiguous.
 
-`annotate.py` does **not** rebuild the bundle, unlike `promote.py`. After
-annotating, `validate.py` will warn that the published bundle is stale, which
-is correct: run `python scripts/build_bundle.py`, commit and push when you
-want the goals to reach the apps.
+**After a successful write, `annotate.py` rebuilds the bundle**, exactly as
+`promote.py` does — `scripts/build_bundle.py` runs on the `--confirm` path
+only. Same failure behaviour: it fails loudly, and it does **not** roll back
+the annotation. The annotation has already been written and is correct; the
+bundle is merely stale. Rolling back a coaching decision because a publishing
+step hiccuped would be worse than the staleness it was trying to avoid. It
+also does not commit or push — publishing stays a separate, deliberate act.
+
+The consequence: a batch of annotations leaves `build/` already regenerated
+and correct, so `validate.py`'s bundle-staleness warning clears immediately.
+The new goals still do not reach the apps until `build/` is committed and
+pushed.
 
 **Every other field change still goes through supersede.** If you correct a
 `focus`, an `execution`, a `swap`, `equipment` — anything that changes what
