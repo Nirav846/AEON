@@ -42,6 +42,9 @@ existing pattern that already fits — reuse it rather than duplicating.
   `schema/` are the authority on each record type's real fields.
 - `schema/complex.schema.json` — the structural contract.
 - `scripts/validate.py` — run this before showing the coach anything.
+- `scripts/annotate.py` — edits ONLY the `goals` array on an existing
+  approved complex, in place. Preview by default, writes only with
+  `--confirm`. See "Annotating `goals`" below.
 - `SOURCES.md` — plain-language summaries of the training philosophies you
   may draw on. Tag, don't quote.
 
@@ -72,6 +75,65 @@ existing pattern that already fits — reuse it rather than duplicating.
    `raw.githubusercontent.com`; they never see `data/` directly, so a promoted
    complex is invisible to them until the bundle is rebuilt *and* pushed.
    Expect 1-2 minutes of CDN propagation delay after pushing.
+
+## Annotating `goals` — the one exception to supersede
+
+`goals` is the **only** field that may be edited in place on an existing
+approved complex, and it uses `scripts/annotate.py`, not the supersede
+workflow:
+
+```
+annotate.py cricket 4 "more power hitting sixes"            -> preview only
+annotate.py cricket 4 "more power hitting sixes" --confirm  -> writes
+```
+
+```
+# Annotating goals
+annotate.py <sport> <id> "<goal>" ["<goal>" ...] [--confirm]
+
+# Promoting a complex (unchanged)
+promote.py <sport> "<Name>" [--supersede <id>] --confirm
+```
+
+**Why goals is exempt.** A `goals` annotation is additive metadata: it does
+not change what the complex *is*, only how it can be found. Superseding would
+fork an identical historical copy of the record for every phrase added, which
+would mean ~95 duplicate record pairs and permanently retained superseded
+rows, for no audit value. The supersede workflow exists to track *corrections*
+to a complex's substance, and a goal phrase is not that.
+
+**Why it is still dangerous.** `promote.py` only ever appends, so a mistake
+is fixed by deleting a line. `annotate.py` rewrites a live approved record in
+place, so a mistake silently corrupts data. It therefore takes the same
+precautions as `promote.py`, plus two more:
+
+- **`--confirm` is required for any write.** Default is preview-only, for the
+  same reason as `promote.py` — the write goes straight into
+  `data/complexes/` and the script cannot undo it. Never add a flag that
+  bypasses `--confirm`.
+- **Refuses any target that is not `approved`.** Superseded, proposed and
+  rejected records are all refused.
+- **Only `goals` may change.** Enforced structurally, then re-verified by
+  diffing the record before and after; if any other key's value differs, the
+  write is refused before it reaches disk.
+- **`validate.py` runs before and after.** A failed pre-check aborts without
+  writing. A failed post-check restores the original file byte-for-byte.
+- **Goals append, deduplicated.** Re-running with a phrase already present
+  writes nothing rather than duplicating it.
+
+`annotate.py` matches by **id, never by name** — names repeat. "Sweep Base &
+Swing" is both id 81 (`superseded`) and id 148 (`approved`); only 148 is
+annotatable, and keying on the name would make that choice ambiguous.
+
+`annotate.py` does **not** rebuild the bundle, unlike `promote.py`. After
+annotating, `validate.py` will warn that the published bundle is stale, which
+is correct: run `python scripts/build_bundle.py`, commit and push when you
+want the goals to reach the apps.
+
+**Every other field change still goes through supersede.** If you correct a
+`focus`, an `execution`, a `swap`, `equipment` — anything that changes what
+the complex trains or demands — supersede it. Do not reach for `annotate.py`;
+it will refuse anything but `goals`.
 
 ## The three design filters (apply to every new complex)
 
@@ -124,6 +186,47 @@ existing pattern that already fits — reuse it rather than duplicating.
   primary — never harder. Same root cause as the original Hyrox filter-3
   failures, in miniature: ids 14, 36 and 91 were all caught by this, not by
   the equipment-difference rule.
+
+## Fourth standing consideration: injury prevention
+
+**4. Injury prevention** — a standing consideration, **not yet a hard filter.**
+
+Filters 1-3 above are pass/fail: a complex either respects the gym-floor
+constraint or it is rejected outright. Injury prevention is deliberately not
+in that class yet. There is no rule to pass and no threshold to clear, and
+proposing one now would mean inventing criteria we cannot yet justify.
+
+It is named here so it never gets silently skipped. Every complex you
+design, review, or propose gets this question asked explicitly, and the
+answer gets recorded — even when the answer is "nothing special here":
+
+- Does this build tissue tolerance in a tissue this role actually loads?
+  (Hamstring in a batsman, rotator cuff in a fast bowler, calf and achilles
+  in a badminton jumper.)
+- Does it pre-empt a known injury pattern for that specific role, or is it
+  purely performance work with no prevention angle?
+- Is the movement itself a risk that needs offsetting somewhere else in the
+  week's programme?
+
+**Where the answer gets recorded.** Prevention intent is carried on the record
+in two existing places, not a new field:
+
+- `goals` — an athlete-facing outcome phrase, e.g. `"fewer hamstring strains"`.
+  Tag it via `annotate.py` like any other goal.
+- `category` — the `Hip Dom` / `Knee Dom` categories already exist to bias a
+  complex toward a region. A prevention complex usually wears one of those.
+
+**Two things this is not.** It is not a requirement that every complex
+carries a prevention claim — plenty of legitimately performance-only work
+exists, and forcing a claim onto it would produce exactly the invented
+outcomes that `goals` was designed to avoid. And it is not permission to keep
+a known injury-relevant defect because the complex scores well elsewhere:
+`data/known-issues.md` holds those, and they stay there consciously until we
+decide each one.
+
+When we have enough real examples to say what a prevention claim actually
+looks like in practice, promote this into a real fourth filter with real
+rules. Until then it stays a question you must ask, not a gate you must pass.
 
 ## Schema (see schema/complex.schema.json for the enforced version)
 
@@ -213,11 +316,12 @@ ever, regardless of how confident you are.
 
 `scripts/promote.py` is the sole exception, and only the coach runs it.
 
-## The one safety invariant
+## The safety invariants
 
-**`promote.py` never writes without `--confirm`.** Every invocation that would
-write — promoting, superseding, or both — only prints a preview and exits
-unless `--confirm` is explicitly passed.
+**No script that writes into `data/complexes/` writes without `--confirm`.**
+That covers `promote.py` (promoting, superseding, or both) and
+`annotate.py` (editing `goals` in place). Every invocation that would write
+only prints a preview and exits unless `--confirm` is explicitly passed.
 
 ```
 promote.py badminton "X" --supersede 21           -> preview only, writes nothing
@@ -225,13 +329,13 @@ promote.py badminton "X" --supersede 21 --confirm -> writes for real
 ```
 
 This is deliberate: the default must be the safe path, because a real write
-goes straight into `data/complexes/` and cannot be undone by the script. Do not
-add flags, shortcuts, or "just this once" invocations that bypass `--confirm`,
-and do not change that default back. `--dry-run` still exists as a no-op alias
-so older commands keep working, but it is not what makes this safe — the
-absence of `--confirm` is. To test any change to `promote.py`, run it against
-the live repo *without* `--confirm`; the preview path is safe to exercise
-directly.
+goes straight into `data/complexes/` and cannot be undone by the script. Do
+not add flags, shortcuts, or "just this once" invocations that bypass
+`--confirm`, and do not change that default back. `--dry-run` still exists as
+a no-op alias so older commands keep working, but it is not what makes this
+safe — the absence of `--confirm` is. To test any change to either script,
+run it against the live repo *without* `--confirm`; the preview path is safe
+to exercise directly.
 
 ## Known issues
 
