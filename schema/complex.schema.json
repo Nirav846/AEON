@@ -12,6 +12,11 @@
     "role": { "type": "string" },
     "category": { "type": "string", "enum": ["Multi", "Primer", "Core", "Knee Dom", "Hip Dom", "Push", "Pull"] },
     "focus": { "type": "string" },
+    "goals": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 3 },
+      "description": "Short athlete-facing outcome phrases, e.g. [\"more power hitting sixes\", \"faster between-wicket running\"]. Free text and deliberately NOT a controlled vocabulary: the real shape is not known until real examples exist. Optional - leaving this absent is correct where no genuine outcome is obvious from the complex itself; do not invent one to fill the gap."
+    },
     "execution": { "type": "string", "minLength": 5 },
     "swap": { "type": "string", "minLength": 5 },
     "equipment": { "type": "array", "items": { "type": "string" } },
