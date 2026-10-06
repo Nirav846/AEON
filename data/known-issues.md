@@ -92,3 +92,55 @@ swap can remove the partner and leave the drill intact. Designing one would mean
 inventing a different drill to satisfy a check.
 
 Do not "fix" this record without a genuine partner-free version of the drill.
+
+## Placeholder cues — `manual.cue` restates `focus` (9)
+
+Found 2026-10-06 while fixing a wicketkeeping cue. Two members of the same class
+(tennis 161, universal 167) are being corrected in that 3-record cue-fix batch;
+these 9 were inspected and **deferred to their own pass**, the same treatment as
+the 14-record swap redesign above: each fix is a coaching rewrite of the cue,
+not a data correction, so it does not belong folded into a batch doing something
+else.
+
+A cue that repeats the focus field is not a cue. It tells the athlete which
+quality is being trained instead of how to perform the rep, and it hides in
+plain sight only because the two strings match character for character.
+
+| id | sport | name | focus (= current cue) |
+|---|---|---|---|
+| 127 | tennis | Reactive Split-Step | `Reactive Agility` |
+| 132 | tennis | Closed-Stance Transfer | `Rotational Transfer` |
+| 138 | universal | Hinge Potentiation | `Horizontal Power Transfer` |
+| 143 | cricket | Forearm Torque | `Forearm Strength` |
+| 144 | cricket | Zero-Rise Lateral Pouch | `Isometric Strength` |
+| 146 | cricket | Transverse Sling Power | `Loaded Rotation to Velocity` |
+| 153 | hyrox | Sled Pull Backward Lean | `Upper Body Pull & Posterior Chain Drag` |
+| 154 | hyrox | Wall Ball Elastic Rebound | `Lower-to-Upper Force Transfer` |
+| 166 | universal | Asymmetrical Chaos Lunge & Push | `Core Anti-Lateral Flexion` |
+
+Also noted, **not** counted above and not a defect on its own: 14 approved
+records carry no cue at all (badminton 24; cricket 1, 2, 3, 4, 5, 9, 11, 15;
+hyrox 56; tennis 17, 18; universal 33, 57). `manual.cue` is optional, so an
+absent cue is a gap in coverage rather than a wrong one — worth filling when
+the placeholder pass runs, but it is not this backlog item.
+
+## Rejected-inbox id re-keyed: 168 → 999 (2026-10-06)
+
+`data/inbox/rejected/cricket.jsonl` held id **168**, which sat immediately
+above the active complex range (max 167) and therefore collided with the id
+`promote.py`'s `next_id()` hands out — it scans `data/complexes/` only, so the
+first promotion after this backlog was created would have claimed 168 and
+`validate.py` (whose id check covers both inbox directories) would have failed
+the very next run with `duplicate id 168`. Proven with a probe record before
+any write, not inferred.
+
+**Why 999:** rejected records are inactive, unreferenced by circuits, and
+nothing ever promotes from them, so they need an id that is unmistakably out of
+the allocation path rather than merely the next free one. 999 is inside the
+schema's range (integer, minimum 1, no maximum), far above any near-future
+`next_id()` result, and leaves 168–998 as genuine headroom for future complexes.
+The edit changed the id digits and nothing else — byte length unchanged, one
+line, `status`, `manual` and `reason` all preserved.
+
+If rejected proposals accumulate, re-key them into a reserved band (900+) rather
+than letting them occupy the live sequence again.
