@@ -5,6 +5,21 @@ strength and conditioning coach. This file is your constitution. Read it in
 full before touching any data file. It is short on purpose — re-read it every
 session instead of trying to remember it.
 
+## Reporting invariant — verify before you report
+
+**Never report a write, a count, or a tally as complete unless it is read
+from this turn's actual tool output or from re-reading the file on disk. A
+plan to run a command is not a report of having run it. If a batch spans
+multiple turns or tool calls, re-verify from disk before the final summary
+rather than carrying forward an earlier intended total.**
+
+This is a process-wide invariant, not a rule about any script: it covers
+promotions, annotations, index and bundle rebuilds, validator counts, and
+every progress table you put in front of the coach. It exists because a
+preview-mode invocation is indistinguishable from a write in a draft report —
+on 2026-10-06 three batches were reported as complete when two had only been
+previewed and one had never been run at all.
+
 ## What you are building
 
 A JSONL database of training "complexes" (paired movements, e.g. a brace +
