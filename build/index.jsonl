@@ -144,3 +144,7 @@
 {"type": "conditioning", "id": 31, "name": "Wall Ball / Run Threshold", "sport": "Hyrox", "role": "Court & Treadmill", "cat": "400m Run + 25 Wall Balls x 5 Rounds", "equip": []}
 {"type": "conditioning", "id": 32, "name": "Heavy Carry Engine Builder", "sport": "Hyrox", "role": "Treadmill & Turf", "cat": "3 min Run (15% Incline) + 1 min Heavy Farmers Carry (Continuous)", "equip": []}
 {"type": "conditioning", "id": 33, "name": "Burpee Broad Jump Overspeed", "sport": "Hyrox", "role": "Turf & Air Bike", "cat": "10 Broad Jumps + 30s Air Bike Sprint / 60s Rest x 6 Rounds", "equip": []}
+{"type": "conditioning", "id": 34, "name": "Aerobic Base Tempo Run", "sport": "Universal", "role": "Treadmill", "cat": "-", "equip": []}
+{"type": "conditioning", "id": 35, "name": "Kitchen Line Shuffle-Reset", "sport": "Pickleball", "role": "Court", "cat": "-", "equip": []}
+{"type": "conditioning", "id": 36, "name": "Kitchen Approach & Arrest", "sport": "Pickleball", "role": "Court", "cat": "-", "equip": []}
+{"type": "conditioning", "id": 37, "name": "Repeated Dink Recovery", "sport": "Pickleball", "role": "Court", "cat": "15s work / 20s rest x 8 rounds", "equip": []}
