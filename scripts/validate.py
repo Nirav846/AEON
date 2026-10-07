@@ -252,6 +252,104 @@ def check_duplicates(all_records):
         seen_exec[exec_key] = (r.get("id"), f"{path}:{line_no}")
 
 
+def load_schema(name):
+    """Read schema/<name>.schema.json, or None if it cannot be read.
+
+    Schemas are documentation that nothing read until check_conditioning; this is
+    the single accessor for them, so a future record type validates against the
+    same file rather than a re-implementation of it."""
+    path = ROOT / "schema" / f"{name}.schema.json"
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:            # noqa: BLE001
+        yield_warning(f"schema/{name}.schema.json", 1,
+                      f"could not be read ({exc}) - skipping schema conformance")
+        return None
+
+
+def check_schema_conformance(path, line_no, r, schema_name, schema):
+    """Validate one record against its JSON schema.
+
+    Uses the real jsonschema library rather than hand-rolling draft-07 rules, so
+    required/type/enum/minimum are enforced by one implementation instead of a
+    conditioning-specific copy that could drift from the schema file.
+
+    Skips cleanly if jsonschema is unavailable or the schema cannot be read,
+    warning once rather than failing the run - a broken check must never block
+    the coach from validating the rest of the database."""
+    if schema is None:
+        return
+    try:
+        import jsonschema
+    except ImportError:
+        yield_warning(path, line_no,
+                      "jsonschema not installed - skipping schema conformance "
+                      "(pip install jsonschema to enable)")
+        return
+    validator = jsonschema.Draft7Validator(schema)
+    for err in sorted(validator.iter_errors(r), key=lambda e: list(e.path)):
+        where = "/".join(str(p) for p in err.path) or "(root)"
+        yield_error(path, line_no, f"schema {schema_name}: {where}: {err.message}")
+
+
+# Conditioning targets are free-form by design: the unit is context-dependent on
+# modality (pace km/h, watts, seconds, grade, load, belt instruction). The schema
+# types them as bare strings for that reason. So this recognises STRUCTURE - a
+# comparator, a number, or an explicit no-target marker - and flags text with no
+# recognisable quantity. It deliberately does not parse units or ranges, because
+# no single range format would fit all four shapes present in the data.
+TARGET_NO_NUMBER_OK = {"flat", "belt off", "level", "n/a", "na", "none", "-"}
+TARGET_STRUCTURED = re.compile(
+    r"(^-\s*$)"            # explicit no-target marker
+    r"|(<\s*\d)"           # under N   ("<11.2s", "< 1:50/500m pace")
+    r"|(>\s*\d)"           # over N    (">420W")
+    r"|(\d+\s*[-\u2013]\s*\d+)"   # range ("18.5-21.5 kmh")
+    r"|(\d)",              # bare number/grade ("10% grade", "Level 12")
+    re.I)
+
+
+def check_targets(path, line_no, r):
+    """male_target / female_target, when present, are well-formed.
+
+    Optional in the schema, so absence is never flagged. Warnings rather than
+    errors: these are hand-entered coaching strings and the coach judges them."""
+    for field in ("male_target", "female_target"):
+        val = r.get(field)
+        if val is None:
+            continue
+        if not isinstance(val, str):
+            yield_error(path, line_no, f"{field} must be a string, got {type(val).__name__}")
+            continue
+        if not val.strip():
+            yield_warning(path, line_no,
+                          f"{field} is empty - use '-' if there is deliberately no target")
+            continue
+        if not TARGET_STRUCTURED.search(val) and val.strip().lower() not in TARGET_NO_NUMBER_OK:
+            yield_warning(path, line_no,
+                          f"{field} '{val}' has no recognisable quantity or placeholder "
+                          f"- check it is not malformed")
+
+
+def check_conditioning_record(path, line_no, r, schema, required):
+    """Validate one conditioning protocol record.
+
+    Conditioning is a genuinely different shape from Complex - no role, category,
+    focus, execution, swap or equipment - so the Complex-specific checks
+    (check_equipment_tags, check_inversion, the clunk-test regexes) do not apply
+    and are not run here.
+    """
+    for field in required:
+        if field not in r or r[field] in (None, ""):
+            yield_error(path, line_no, f"missing required field '{field}'")
+
+    if r.get("status") not in VALID_STATUSES:
+        yield_error(path, line_no,
+                    f"status '{r.get('status')}' not in {sorted(VALID_STATUSES)}")
+
+    check_schema_conformance(path, line_no, r, "conditioning", schema)
+    check_targets(path, line_no, r)
+
+
 def check_ids(all_records):
     ids = {}
     # Superseded records DO still occupy their id — they must never be reused,
@@ -339,10 +437,21 @@ def main():
 
     if not sys.argv[1:]:
         complex_ids = {r["id"] for _, _, r in all_records if "name" in r and "execution" in r}
-        conditioning_ids = set()
+
+        # Conditioning is validated as records in their own right, not only as
+        # reference targets for circuits. It is a separate pass because its ids
+        # (1-33) deliberately overlap the complex ids (1-33), so feeding it
+        # through check_ids would report 33 false duplicate-id errors.
+        cond_schema = load_schema("conditioning")
+        cond_required = cond_schema.get("required", []) if cond_schema else []
+        conditioning_records = []
         for path in conditioning_paths:
-            for _, r in load_jsonl(path):
-                conditioning_ids.add(r.get("id"))
+            for line_no, r in load_jsonl(path):
+                check_conditioning_record(path, line_no, r, cond_schema, cond_required)
+                conditioning_records.append((path, line_no, r))
+
+        check_ids(conditioning_records)
+        conditioning_ids = {r["id"] for _, _, r in conditioning_records}
         check_circuit_refs(circuit_paths, complex_ids, conditioning_ids)
         check_bundle_freshness()
 
