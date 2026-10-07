@@ -53,6 +53,12 @@ ROOT = Path(__file__).resolve().parent.parent
 INBOX_DIR = ROOT / "data/inbox/proposed"
 VALID_SPORTS = {"Cricket", "Tennis", "Badminton", "Pickleball", "Hyrox", "Universal"}
 
+# Conditioning protocols are a different record type with their own schema and their
+# own flat file, so they get their own inbox and their own promotion path rather than
+# being forced through the sport-scoped complex one.
+CONDITIONING_INBOX = INBOX_DIR / "conditioning.jsonl"
+CONDITIONING_FILE = ROOT / "data/conditioning.jsonl"
+
 
 def next_id():
     max_id = 0
@@ -61,6 +67,40 @@ def next_id():
             r = json.loads(line)
             max_id = max(max_id, r.get("id", 0))
     return max_id + 1
+
+
+def next_conditioning_id():
+    """Next free conditioning id.
+
+    Scoped to data/conditioning.jsonl only. Conditioning ids (1-33) deliberately
+    overlap complex ids, so next_id() would hand back 197+ and skip the range. Ids
+    are reused after a supersede-free reject, so this is a plain max+1 over the
+    conditioning file, exactly as next_id() does for complexes."""
+    max_id = 0
+    if CONDITIONING_FILE.exists():
+        for line in CONDITIONING_FILE.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                max_id = max(max_id, json.loads(line).get("id", 0))
+    return max_id + 1
+
+
+def load_conditioning_inbox():
+    if not CONDITIONING_INBOX.exists():
+        return []
+    return [json.loads(line) for line in
+            CONDITIONING_INBOX.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def save_conditioning_inbox(records):
+    if not CONDITIONING_INBOX.exists() and not records:
+        return
+    body = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in records)
+    CONDITIONING_INBOX.write_bytes(body.encode("utf-8"))
+
+
+def append_conditioning(record):
+    with open(CONDITIONING_FILE, "a", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
 def load_inbox(sport=None):
@@ -242,10 +282,108 @@ def rebuild_bundle():
     return True
 
 
+def promote_conditioning_main(argv):
+    """Promotion path for conditioning protocols.
+
+    SAFETY INVARIANT, same as the complex path: PREVIEW ONLY unless --confirm is
+    explicitly passed. A real write goes straight into data/conditioning.jsonl and
+    cannot be undone by this script, so the safe path is the default.
+
+    Deliberately minimal. Conditioning has no supersede lineage (all 33 records are
+    flat 'approved'), so --supersede is refused rather than half-implemented. Adding
+    a promotion that silently overwrote a protocol would be worse than not having one.
+
+      promote.py conditioning --list
+      promote.py conditioning "Name"              -> PREVIEW ONLY
+      promote.py conditioning "Name" --confirm    -> writes for real
+      promote.py conditioning --all-approved --confirm
+    """
+    args = [a for a in argv if a != "conditioning"]
+    listing = "--list" in args
+    all_approved = "--all-approved" in args
+    confirm = "--confirm" in args
+
+    if any(a == "--supersede" for a in args):
+        print("REFUSING TO RUN: --supersede is not supported for conditioning.\n"
+              "  Conditioning records have no supersede lineage, so there is no "
+              "predecessor to flip.\n"
+              "  Edit the record deliberately instead, or add lineage support first.")
+        return
+
+    unknown = [a for a in args
+               if a not in ("--list", "--all-approved", "--confirm", "--dry-run", "--preview")]
+    name = unknown[0] if unknown else None
+    if len(unknown) > 1:
+        print(f"ERROR: expected at most one name, got {unknown}")
+        return
+
+    inbox = load_conditioning_inbox()
+    if listing or not inbox:
+        if not inbox:
+            print("conditioning inbox is empty — nothing pending")
+            return
+        for r in sorted(inbox, key=lambda x: x.get("id", 0)):
+            print(f"  id {r.get('id'):>4}  [{r.get('status'):9s}] {r.get('name')}")
+        return
+
+    if all_approved:
+        selected = [r for r in inbox if r.get("status") == "approved"]
+    elif name:
+        selected = [r for r in inbox if r.get("name") == name]
+        if not selected:
+            names = sorted(r.get("name", "") for r in inbox)
+            print(f"no conditioning entry named '{name}'. Pending: {names}")
+            return
+    else:
+        print("pending in data/inbox/proposed/conditioning.jsonl:")
+        for r in sorted(inbox, key=lambda x: x.get("id", 0)):
+            print(f"  id {r.get('id'):>4}  [{r.get('status'):9s}] {r.get('name')}")
+        print("\nNothing written. Select with a name, or --all-approved.")
+        return
+
+    if not selected:
+        print("nothing matches — 0 record(s) would be promoted. Nothing written.")
+        return
+
+    # --- preview first, always ---
+    nid = next_conditioning_id()
+    plan = []
+    for r in selected:
+        plan.append((r, nid))
+        print(f"would promote inbox id {r.get('id')} '{r.get('name')}'\n"
+              f"            -> data/conditioning.jsonl as id {nid} (status 'approved')")
+        nid += 1
+
+    if not confirm:
+        print(f"\nPREVIEW ONLY — nothing written. {len(selected)} record(s) would be promoted, "
+              f"{len(inbox) - len(selected)} would remain in the inbox.")
+        print("Re-run with --confirm to apply: add --confirm to this exact command.")
+        return
+
+    # --- write path, only reachable with --confirm ---
+    for r, new_id in plan:
+        out = dict(r)
+        out["id"] = new_id
+        out["status"] = "approved"
+        append_conditioning(out)
+        print(f"promoted '{out['name']}' -> data/conditioning.jsonl as id {new_id}")
+
+    promoted = {id(r) for r in selected}
+    save_conditioning_inbox([r for r in inbox if id(r) not in promoted])
+    print(f"{len(selected)} record(s) promoted. Run scripts/validate.py to confirm.")
+    rebuild_bundle()
+
+
 def main():
     argv = sys.argv[1:]
     if not argv:
         print(__doc__)
+        return
+
+    # Conditioning is a separate record type with its own inbox and file; it never
+    # goes through the sport-scoped complex path.
+    if "conditioning" in argv and not any(a.capitalize() in VALID_SPORTS for a in argv):
+        promote_conditioning_main(argv)
         return
 
     if "--list" in argv:

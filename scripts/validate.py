@@ -9,7 +9,7 @@ Usage:
   python3 scripts/validate.py                 # validate everything
   python3 scripts/validate.py data/inbox/proposed/badminton.jsonl   # validate one file
 """
-import json, re, sys, glob
+import json, os, re, sys, glob
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -424,7 +424,29 @@ def main():
     circuit_paths = glob.glob(str(ROOT / "data/circuits.jsonl"))
     conditioning_paths = glob.glob(str(ROOT / "data/conditioning.jsonl"))
 
-    targets = sys.argv[1:] or (complex_paths + inbox_paths)
+    # Conditioning lives in the same inbox directory but is a different record type.
+    # It must be routed to check_conditioning_record, not check_record, or every
+    # correctly-shaped protocol reports phantom errors for the complex-only fields
+    # (role, category, focus, execution, swap, equipment) that it rightly lacks.
+    CONDITIONING_INBOX = "conditioning.jsonl"
+
+    def is_conditioning_path(p):
+        return os.path.basename(p) == CONDITIONING_INBOX
+
+    if sys.argv[1:]:
+        targets = [p for p in sys.argv[1:] if not is_conditioning_path(p)]
+        cond_only = [p for p in sys.argv[1:] if is_conditioning_path(p)]
+        if not targets and not cond_only:
+            targets = complex_paths + inbox_paths
+    else:
+        targets = [p for p in complex_paths + inbox_paths if not is_conditioning_path(p)]
+        cond_only = []
+
+    # A conditioning file named on the command line is checked instead of the default
+    # inbox, so `validate.py data/inbox/proposed/conditioning.jsonl` inspects exactly
+    # what it says. Without this the single-file form silently reported 0 records.
+    explicit_cond = [Path(p) for p in cond_only]
+    staging_paths = explicit_cond if explicit_cond else [ROOT / "data/inbox/proposed" / CONDITIONING_INBOX]
 
     all_records = []
     for path in targets:
@@ -432,25 +454,42 @@ def main():
             check_record(path, line_no, r)
             all_records.append((path, line_no, r))
 
-    check_duplicates(all_records)
-    check_ids(all_records)
-
-    if not sys.argv[1:]:
-        complex_ids = {r["id"] for _, _, r in all_records if "name" in r and "execution" in r}
-
-        # Conditioning is validated as records in their own right, not only as
-        # reference targets for circuits. It is a separate pass because its ids
-        # (1-33) deliberately overlap the complex ids (1-33), so feeding it
-        # through check_ids would report 33 false duplicate-id errors.
-        cond_schema = load_schema("conditioning")
-        cond_required = cond_schema.get("required", []) if cond_schema else []
-        conditioning_records = []
-        for path in conditioning_paths:
+    # Staged conditioning is included here too, so its ids are checked against the
+    # live conditioning file and report a friendly message, rather than being
+    # reported as a duplicate complex id (the two id spaces overlap deliberately).
+    if staging_paths:
+        for path in staging_paths:
             for line_no, r in load_jsonl(path):
-                check_conditioning_record(path, line_no, r, cond_schema, cond_required)
-                conditioning_records.append((path, line_no, r))
+                all_records.append((path, line_no, r))
 
-        check_ids(conditioning_records)
+    check_duplicates([t for t in all_records if not os.path.basename(t[0]) == CONDITIONING_INBOX])
+    check_ids([t for t in all_records if not os.path.basename(t[0]) == CONDITIONING_INBOX])
+
+    full_repo = not sys.argv[1:]
+    complex_ids = {r["id"] for _, _, r in all_records if "name" in r and "execution" in r}
+
+    # Conditioning is validated as records in their own right, not only as
+    # reference targets for circuits. It is a separate pass because its ids (1-33)
+    # deliberately overlap the complex ids (1-33), so feeding it through check_ids
+    # would report 33 false duplicate-id errors. Runs in single-file mode too, so a
+    # staged protocol is checked before anyone promotes it.
+    cond_schema = load_schema("conditioning")
+    cond_required = cond_schema.get("required", []) if cond_schema else []
+    conditioning_records = []
+    for path in (conditioning_paths if full_repo else []) + staging_paths:
+        for line_no, r in load_jsonl(path):
+            check_conditioning_record(path, line_no, r, cond_schema, cond_required)
+            conditioning_records.append((path, line_no, r))
+
+    # Id uniqueness covers the LIVE conditioning file only. A staged record's id is
+    # a placeholder: promote.py assigns the real id on promotion, so a collision
+    # between a staged placeholder and a live id is not a real conflict and flagging
+    # it would be noise. (Staged complexes carry unique placeholder ids for the
+    # opposite reason - there, check_ids does run over the inbox.)
+    check_ids([t for t in conditioning_records
+               if os.path.basename(t[0]) != CONDITIONING_INBOX])
+
+    if full_repo:
         conditioning_ids = {r["id"] for _, _, r in conditioning_records}
         check_circuit_refs(circuit_paths, complex_ids, conditioning_ids)
         check_bundle_freshness()
