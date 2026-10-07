@@ -203,7 +203,25 @@ it will refuse anything but `goals`.
 
   **The inversion check.** A swap must not require MORE distinct pieces of
   equipment, or a scarcer one, than the primary execution. If the primary is
-  bodyweight or single-implement, the swap must be too.
+  bodyweight or single-implement, the swap must be too. `validate.py` judges only
+  the implements a swap **adds** — one the primary already carries is needed
+  either way, so its tier says nothing about which option is easier to get.
+
+  **When no equivalent fallback exists.** Sometimes the primary owns the only
+  implement that can express its stimulus, and every alternative is a different
+  drill rather than a fallback. Do not invent one to fill the field. Write the
+  exact sentence:
+
+      No equivalent fallback; perform as written.
+
+  and leave `swap_equipment` absent, so there is nothing for the inversion check
+  to judge. This is a documented convention, not a fake alternative: the Detail
+  page shows the sentence honestly, and `swap` stays a required field with its
+  `minLength`, so nothing in the schema, the validator, the bundle shape or the
+  app has to change. The first five records to use it are **72, 3, 28, 18 and
+  53** — see `data/known-issues.md` for why each one has no genuine fallback. If
+  that count ever grows past a handful, revisit making `swap` optional rather
+  than letting the convention spread.
 
   This is citable by name, the same way "the clunk test" is. Run it on every
   proposal before writing it. It exists because the failure is invisible to

@@ -133,6 +133,20 @@ def check_inversion(path, line_no, r):
       B. every swap implement is reserved/scarce while the primary has at least
          one common-tier implement — i.e. cheap was traded for scarce.
 
+    Condition B only judges the implements the swap ADDS. An implement the
+    primary already carries is not a cost of the swap — the athlete needs it
+    either way, so its tier says nothing about which option is easier to get.
+    Without this exclusion a swap that reuses the primary's own implement (and
+    needs strictly fewer things) was flagged for that implement being reserved,
+    which is the opposite of an inversion. Condition A is deliberately untouched:
+    a genuine implement-count inversion stays visible even when the swap shares
+    equipment with the primary.
+
+    Condition B fires on ANY scarce implement the swap adds, not only when every
+    swapped implement is scarce. The old "all" test let a swap pair one
+    common-tier tag with one scarce implement and slip through entirely, which is
+    the same cheap-for-scarce trade the rule exists to catch.
+
     Skipped on superseded records: they are frozen audit history and can never
     be promoted, so flagging them is pure noise.
     """
@@ -149,10 +163,15 @@ def check_inversion(path, line_no, r):
             f"[{r.get('name')}] INVERSION: swap needs {len(sw)} implements {sw} but the "
             f"primary needs {len(eq)} {eq} — the fallback is harder to get than the default")
 
-    if all(e not in COMMON_TIER for e in sw) and any(e in COMMON_TIER for e in eq):
+    # Only implements the swap adds are judged: one the primary already carries is
+    # needed either way, so it is not a cost of choosing the swap. And ANY scarce
+    # implement the swap adds is enough - pairing one common-tier tag alongside a
+    # scarce one is still trading cheap for scarce, which the old "all" test missed.
+    added = [e for e in sw if e not in eq]
+    if added and any(e not in COMMON_TIER for e in added) and any(e in COMMON_TIER for e in eq):
         yield_warning(
             path, line_no,
-            f"[{r.get('name')}] INVERSION: swap needs only reserved implements {sw} while "
+            f"[{r.get('name')}] INVERSION: swap needs reserved implements {added} while "
             f"the primary has common-tier {eq} — check the swap is really the easier option")
 
 

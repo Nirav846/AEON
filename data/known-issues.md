@@ -93,6 +93,50 @@ inventing a different drill to satisfy a check.
 
 Do not "fix" this record without a genuine partner-free version of the drill.
 
+## No equivalent fallback (5): convention recorded 2026-10-07
+
+Resolved in this session. Five records had no swap that preserved the training
+intent, and every candidate either escalated to a scarcer implement or was a
+different drill wearing the same name:
+
+| id | sport | why nothing works |
+|---|---|---|
+| 72 | pickleball | Pallof needs lateral resistance; only a cable produces it, and the primary already owns the band |
+| 3 | cricket | The stimulus is kettlebell bottom-up instability; a dumbbell is not bottom-up at all |
+| 28 | pickleball | Same — KB bottom-up hold is the stimulus, DB Farmer's Hold is a different exercise |
+| 18 | tennis | Primary is already a dumbbell push press; barbell escalates, a lighter load changes the stimulus |
+| 53 | hyrox | Stimulus is *loaded* eccentric yielding; the only common-tier load is the dumbbell the primary already uses |
+
+**The convention.** Each now carries `swap: "No equivalent fallback; perform as
+written."` with `swap_equipment` absent. It is the exact wording to use — the
+Detail page shows it honestly, the schema and validator are untouched, and the
+inversion check has nothing to judge. Recorded in `AGENTS.md` filter 3.
+
+Making `swap` optional was considered and declined: it would touch
+`schema/complex.schema.json`, `scripts/validate.py`, `src/Aeon.Data/Models.cs`,
+two app pages (`ComplexDetailPage`, `SearchPage`) and this file, all to serve 5
+records out of ~170. Revisit only if the count grows past a handful.
+
+Still open on id 72: a bodyweight anti-rotation fallback needing no band is worth
+judging against the intent by the coach. It is not written, because a Pallof's
+lateral line of pull is the whole demand and no bodyweight version obviously
+keeps it.
+
+## Inversion check: fixed to ignore implements the primary already carries (2026-10-07)
+
+`check_inversion` condition B used to judge *every* swap implement, including
+ones the primary already needs. A bodyweight swap that reused the primary's own
+slider was flagged for using a reserved implement, even though it needed strictly
+fewer things — the opposite of an inversion. Condition B now judges only the
+implements the swap adds (`validate.py`, the `added = [e for e in sw if e not in
+eq]` line). Condition A, the implement-count rule, is deliberately untouched: a
+real count inversion stays visible even when the swap shares equipment with the
+primary.
+
+**Known limitation, left as-is:** condition B uses "all", not "any". A swap
+carrying one common-tier implement alongside one scarce one passes the check,
+because a single common-tier tag satisfies it.
+
 ## Placeholder cues — `manual.cue` restates `focus` (9)
 
 Found 2026-10-06 while fixing a wicketkeeping cue. Two members of the same class
