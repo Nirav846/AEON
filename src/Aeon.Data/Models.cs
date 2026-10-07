@@ -17,6 +17,7 @@ public sealed record Complex
     [JsonPropertyName("sport")] public string Sport { get; init; } = "";
     [JsonPropertyName("role")] public string Role { get; init; } = "";
     [JsonPropertyName("category")] public string Category { get; init; } = "";
+    [JsonPropertyName("goals")] public List<string>? Goals { get; init; }
     [JsonPropertyName("focus")] public string Focus { get; init; } = "";
     [JsonPropertyName("execution")] public string Execution { get; init; } = "";
     [JsonPropertyName("swap")] public string Swap { get; init; } = "";
