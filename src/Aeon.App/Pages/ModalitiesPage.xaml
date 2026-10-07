@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Aeon.App.Models"
+             x:Class="Aeon.App.Pages.ModalitiesPage"
+             Title="Modalities">
+    <Grid RowDefinitions="Auto,*">
+
+        <Label x:Name="HeaderLabel"
+               FontSize="13" TextColor="Gray" Padding="16,10" />
+
+        <CollectionView x:Name="ModalitiesList" Grid.Row="1"
+                        SelectionMode="Single"
+                        SelectionChanged="OnModalitySelected">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:ModalityRow">
+                    <Border Stroke="LightGray" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12"
+                            Margin="12,6" Padding="16,14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="3">
+                                <Label Text="{Binding Modality}" FontSize="18" FontAttributes="Bold" />
+                                <Label Text="{Binding ProtocolCount, StringFormat='{0} protocols'}"
+                                       FontSize="13" TextColor="Gray" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1" Text="&#x203A;" FontSize="26"
+                                   TextColor="Gray" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

@@ -12,6 +12,11 @@
                 ContentTemplate="{DataTemplate pages:SportsPage}"
                 Route="browse" />
         </Tab>
+        <Tab Title="Conditioning">
+            <ShellContent
+                ContentTemplate="{DataTemplate pages:ConditioningPage}"
+                Route="conditioning" />
+        </Tab>
         <Tab Title="Search">
             <ShellContent
                 ContentTemplate="{DataTemplate pages:SearchPage}"

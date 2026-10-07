@@ -20,6 +20,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<BundleFetcher>();
 		builder.Services.AddSingleton<BundleService>();
 		builder.Services.AddSingleton<SportsPage>();
+		builder.Services.AddSingleton<ConditioningPage>();
 		builder.Services.AddSingleton<SearchPage>();
 
 		return builder.Build();
