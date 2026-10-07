@@ -188,3 +188,69 @@ line, `status`, `manual` and `reason` all preserved.
 
 If rejected proposals accumulate, re-key them into a reserved band (900+) rather
 than letting them occupy the live sequence again.
+## Standing rule for new validator checks
+
+A new check in `validate.py` must not early-return on an absent field: an absent field means "not judged", which is indistinguishable from "judged and passed", and that is precisely how the `swap_equipment` fold hid inversions across 40+ records for weeks.
+
+## Four surfaced inversions (2026-10-07): mini-batch + one queued review
+
+The `all` -> `any` tightening in condition B surfaced four swaps that add a
+scarcer implement than their primary uses. Three were promoted earlier the same
+day carrying their original swaps untouched, so these are pre-existing defects,
+not regressions - but they are real, and none is being folded or hidden.
+
+| id | sport | swap adds | disposition |
+|---|---|---|---|
+| 185 | cricket | Landmine | RESOLVED -> 194 |
+| 186 | hyrox | Sled | RESOLVED -> 195 |
+| 187 | hyrox | Landmine | RESOLVED -> 196 |
+| 34 | universal | Bench | queued review, see below |
+
+All three were the same shape as the six fixed earlier this week: a scarce
+implement substituting for something the primary already covers. Fixed by
+dropping the substitution, not by re-scoping the tier.
+
+- **194** Landmine Twist -> the med-ball toss the primary already owns.
+- **195** Reverse Sled Drag -> the band-resisted drag the primary already owns.
+- **196** Landmine Push Press + Banded Squat Jumps -> bodyweight thrusters,
+  keeping the toss to max height. This swap had been dropping the toss entirely,
+  so `Lower-to-Upper Force Transfer` was never expressed in the fallback.
+
+**Why 196 is not the same case as ids 3 and 28.** Both look like "a fallback
+that is easier, not equivalent", and they were judged differently on purpose.
+Bottom-up instability is binary: a dumbbell cannot produce it at all, so the
+stimulus disappears with the swap. Load is a magnitude, and turning it down is
+something a fallback is expected to do. Where the *stimulus itself* is binary,
+no fallback exists and the convention applies; where only the *load* changes, a
+bodyweight version of the same movement is a genuine fallback. That distinction,
+not the precedent from 33 and 38, is the reason 196 was accepted.
+
+## Queued review: id 34 Cervical-Vestibular Integration
+
+Not urgent, but recorded here so it does not rot as an unexplained warning.
+
+**Diagnosis - the fold is still present.** `equipment` reads
+`["Band","Tennis Ball","Wall","Bench","Partner"]`, but `Bench` and `Partner` are
+named only in the swap (`Isometric Neck Hold against Bench + Partner Catch`).
+They are swap-only tags sitting in `equipment`, which is exactly the defect that
+kept id 34 off the 2026-10-04 sweep entirely - the sweep corrected 28 records
+and this one never surfaced because the fold hid it. Correctly split, it is a
+B2_TIER case: primary `["Band","Tennis Ball","Wall"]`, swap
+`["Bench","Partner"]`, and `Bench` is outside COMMON_TIER.
+
+**Candidate options for a later pass**, neither applied:
+- `Anti-Extension Neck Hold against a Wall + Partner Catch` - `Wall` is already
+  in the primary and is common-tier, leaving `Partner` as the only added
+  implement (also common-tier). Question for the coach: a wall press is less
+  support than a bench, so is it a weaker neck-arming stimulus or an equivalent?
+- Keep the bench and accept the warning, documenting why.
+
+## Future backlog: cue coverage (not being fixed today)
+
+23 approved records have a `manual.cue` that either restates `focus` or is
+absent entirely. The 9 placeholder cues are fixed; the remaining 14 have no cue
+at all (badminton 24; cricket 1, 2, 3, 4, 5, 9, 11, 15; hyrox 56; tennis 17,
+18; universal 33, 57). `manual.cue` is optional, so an absent cue is a coverage
+gap rather than a wrong value. Writing them is a coaching pass of its own and is
+deliberately **not** bundled into a data-correction batch. Tracked here so the
+gap is visible rather than forgotten.

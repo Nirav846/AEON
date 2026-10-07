@@ -102,15 +102,15 @@
 {"type": "complex", "id": 182, "name": "Deep-Lunge Hamstring Eccentric", "sport": "Badminton", "role": "All", "cat": "Hip Dom", "equip": ["Slider", "Dumbbell"]}
 {"type": "complex", "id": 183, "name": "Reactive Split-Step", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Plate", "Partner"]}
 {"type": "complex", "id": 184, "name": "Zero-Rise Lateral Pouch", "sport": "Cricket", "role": "WK", "cat": "Knee Dom", "equip": ["Bodyweight"]}
-{"type": "complex", "id": 185, "name": "Transverse Sling Power", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Cable", "Med Ball"]}
-{"type": "complex", "id": 186, "name": "Sled Pull Backward Lean", "sport": "Hyrox", "role": "All", "cat": "Pull", "equip": ["Cable", "Band"]}
-{"type": "complex", "id": 187, "name": "Wall Ball Elastic Rebound", "sport": "Hyrox", "role": "All", "cat": "Push", "equip": ["Dumbbell", "Med Ball", "Wall"]}
 {"type": "complex", "id": 188, "name": "Asymmetrical Chaos Lunge & Push", "sport": "Universal", "role": "All", "cat": "Multi", "equip": ["Dumbbell", "Cable"]}
 {"type": "complex", "id": 189, "name": "Volley Block Anti-Rotation", "sport": "Pickleball", "role": "All", "cat": "Core", "equip": ["Band"]}
 {"type": "complex", "id": 190, "name": "Bat-Impact Anti-Deflection", "sport": "Cricket", "role": "Batsman", "cat": "Primer", "equip": ["Kettlebell"]}
 {"type": "complex", "id": 191, "name": "Forearm Anti-Deflection", "sport": "Pickleball", "role": "All", "cat": "Primer", "equip": ["Kettlebell"]}
 {"type": "complex", "id": 192, "name": "Serve Launch", "sport": "Tennis", "role": "All", "cat": "Push", "equip": ["Dumbbell"]}
 {"type": "complex", "id": 193, "name": "Fatigue Lunge Yielding", "sport": "Hyrox", "role": "All", "cat": "Knee Dom", "equip": ["Dumbbell"]}
+{"type": "complex", "id": 194, "name": "Transverse Sling Power", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Cable", "Med Ball"]}
+{"type": "complex", "id": 195, "name": "Sled Pull Backward Lean", "sport": "Hyrox", "role": "All", "cat": "Pull", "equip": ["Cable", "Band"]}
+{"type": "complex", "id": 196, "name": "Wall Ball Elastic Rebound", "sport": "Hyrox", "role": "All", "cat": "Push", "equip": ["Dumbbell", "Med Ball", "Wall"]}
 {"type": "conditioning", "id": 1, "name": "Side-Deck Straddle Sprints", "sport": "Universal", "role": "Treadmill", "cat": "7s sprint/20s rest", "equip": []}
 {"type": "conditioning", "id": 2, "name": "High-Incline Power Hills", "sport": "Universal", "role": "Treadmill", "cat": "12s sprint/24s rest", "equip": []}
 {"type": "conditioning", "id": 3, "name": "Deadmill Sled Push", "sport": "Universal", "role": "Treadmill", "cat": "10s drive/30s rest", "equip": []}
