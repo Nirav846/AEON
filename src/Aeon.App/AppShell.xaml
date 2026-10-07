@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Aeon.App.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:Aeon.App.Pages"
+    Title="Aeon">
+
+    <TabBar>
+        <Tab Title="Browse">
+            <ShellContent
+                ContentTemplate="{DataTemplate pages:SportsPage}"
+                Route="browse" />
+        </Tab>
+        <Tab Title="Search">
+            <ShellContent
+                ContentTemplate="{DataTemplate pages:SearchPage}"
+                Route="search" />
+        </Tab>
+    </TabBar>
+</Shell>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Aeon.App.Models"
+             x:Class="Aeon.App.Pages.ComplexesPage">
+    <CollectionView x:Name="IdeasList"
+                    SelectionMode="Single"
+                    SelectionChanged="OnIdeaSelected">
+        <CollectionView.EmptyView>
+            <Label Text="No complexes for this combination"
+                   FontSize="14" TextColor="Gray"
+                   HorizontalOptions="Center" Margin="24" />
+        </CollectionView.EmptyView>
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="models:IdeaRow">
+                <Border Stroke="LightGray" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        Margin="12,6" Padding="16,14">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding Complex.Name}" FontSize="17" FontAttributes="Bold" />
+                        <Label Text="{Binding Complex.Focus}" FontSize="13" TextColor="Gray" />
+                        <Label Text="{Binding GoalsPreview}" FontSize="12"
+                               TextColor="{AppThemeBinding Light=#2F6D42, Dark=#7ED19A}"
+                               IsVisible="{Binding HasGoals}" />
+                    </VerticalStackLayout>
+                </Border>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+</ContentPage>

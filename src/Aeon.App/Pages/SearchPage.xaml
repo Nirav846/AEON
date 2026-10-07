@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Aeon.App.Models"
+             x:Class="Aeon.App.Pages.SearchPage"
+             Title="Search">
+    <Grid RowDefinitions="Auto,Auto,*" Padding="12" RowSpacing="8">
+
+        <SearchBar x:Name="SearchInput"
+                   Placeholder="Search names, focus, goals, categories…"
+                   TextChanged="OnSearchTextChanged" />
+
+        <Label x:Name="CountLabel" Grid.Row="1"
+               FontSize="13" TextColor="Gray" />
+
+        <CollectionView x:Name="ResultsList" Grid.Row="2"
+                        SelectionMode="Single"
+                        SelectionChanged="OnResultSelected">
+            <CollectionView.EmptyView>
+                <Label x:Name="EmptyLabel"
+                       Text="Type to search the database"
+                       FontSize="14" TextColor="Gray"
+                       HorizontalOptions="Center" Margin="24" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:SearchRow">
+                    <Border Stroke="LightGray" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12"
+                            Margin="4,4" Padding="14,12">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="{Binding Complex.Name}" FontSize="16" FontAttributes="Bold" />
+                            <Label Text="{Binding Complex.Focus}" FontSize="13" TextColor="Gray" />
+                            <Label Text="{Binding MatchedIn}" FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#2F6D42, Dark=#7ED19A}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>
