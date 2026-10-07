@@ -18,32 +18,20 @@
 {"type": "circuit", "id": 18, "name": "Burpee Broad Jump (BBJ) Explosiveness", "sport": "Hyrox", "role": "All", "cat": "Hip Hinge Power & Upper Body Push", "equip": []}
 {"type": "complex", "id": 1, "name": "Front-Foot Block & Kinetic Whip", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Med Ball", "Wall"]}
 {"type": "complex", "id": 2, "name": "180 Crease Turn", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Bodyweight"]}
-{"type": "complex", "id": 3, "name": "Bat-Impact Anti-Deflection", "sport": "Cricket", "role": "Batsman", "cat": "Primer", "equip": ["Kettlebell", "Dumbbell", "Band"]}
 {"type": "complex", "id": 4, "name": "Back-Foot Power", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Med Ball", "Wall"]}
 {"type": "complex", "id": 5, "name": "Delivery-Stride Brace", "sport": "Cricket", "role": "Pacer", "cat": "Multi", "equip": ["Med Ball"]}
 {"type": "complex", "id": 9, "name": "Pelvic Clearance", "sport": "Cricket", "role": "Spinner", "cat": "Multi", "equip": ["Med Ball"]}
 {"type": "complex", "id": 11, "name": "Stride Endurance", "sport": "Cricket", "role": "Spinner", "cat": "Knee Dom", "equip": ["Band"]}
 {"type": "complex", "id": 15, "name": "Groin Resilience", "sport": "Cricket", "role": "WK", "cat": "Multi", "equip": ["Bodyweight"]}
-{"type": "complex", "id": 17, "name": "Open-Stance Decel & Scoop", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Med Ball", "Cable"]}
-{"type": "complex", "id": 18, "name": "Serve Launch", "sport": "Tennis", "role": "All", "cat": "Push", "equip": ["Dumbbell", "Barbell"]}
 {"type": "complex", "id": 24, "name": "Low Defensive Dig", "sport": "Badminton", "role": "All", "cat": "Knee Dom", "equip": ["Bodyweight"]}
 {"type": "complex", "id": 25, "name": "Kitchen Low Decel", "sport": "Pickleball", "role": "All", "cat": "Multi", "equip": ["Dumbbell"]}
-{"type": "complex", "id": 28, "name": "Forearm Anti-Deflection", "sport": "Pickleball", "role": "All", "cat": "Primer", "equip": ["Kettlebell", "Dumbbell", "Band"]}
-{"type": "complex", "id": 31, "name": "Rotational Decel Buffer", "sport": "Universal", "role": "All", "cat": "Core", "equip": ["Med Ball", "Heavy Bag"]}
-{"type": "complex", "id": 33, "name": "Overspeed Eccentric Snap-Down", "sport": "Universal", "role": "All", "cat": "Hip Dom", "equip": ["Band", "Bench"]}
-{"type": "complex", "id": 37, "name": "X-Factor Coil & Fire", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Band", "Med Ball", "Cable"]}
-{"type": "complex", "id": 38, "name": "Rapid CoM Drop & Block", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Band", "Box"]}
 {"type": "complex", "id": 42, "name": "Reactive Split-Step & Steer", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Bodyweight"]}
 {"type": "complex", "id": 46, "name": "NVZ Retreat & Smash", "sport": "Pickleball", "role": "All", "cat": "Multi", "equip": ["Dumbbell"]}
-{"type": "complex", "id": 53, "name": "Fatigue Lunge Yielding", "sport": "Hyrox", "role": "All", "cat": "Knee Dom", "equip": ["Dumbbell", "Sandbag"]}
-{"type": "complex", "id": 54, "name": "Compromised Grip Carry", "sport": "Hyrox", "role": "All", "cat": "Core", "equip": ["Trap Bar", "Dumbbell", "Kettlebell"]}
 {"type": "complex", "id": 56, "name": "Broad Jump Lactate Tolerance", "sport": "Hyrox", "role": "All", "cat": "Multi", "equip": ["Assault Bike", "SkiErg"]}
 {"type": "complex", "id": 57, "name": "Altitude Drop to Chest Pass", "sport": "Universal", "role": "All", "cat": "Multi", "equip": ["Box", "Med Ball", "Wall"]}
-{"type": "complex", "id": 67, "name": "Lead-Arm Pull & Brace", "sport": "Cricket", "role": "Batsman", "cat": "Pull", "equip": ["Cable", "Dumbbell", "Band"]}
 {"type": "complex", "id": 68, "name": "Yes-No-Wait Reactive Decel", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Partner"]}
 {"type": "complex", "id": 70, "name": "Side-to-Side Redirect", "sport": "Pickleball", "role": "All", "cat": "Multi", "equip": ["Bodyweight"]}
 {"type": "complex", "id": 71, "name": "Ankle Roll Armor", "sport": "Pickleball", "role": "All", "cat": "Multi", "equip": ["Bodyweight"]}
-{"type": "complex", "id": 72, "name": "Volley Block Anti-Rotation", "sport": "Pickleball", "role": "All", "cat": "Core", "equip": ["Band", "Cable"]}
 {"type": "complex", "id": 74, "name": "Dink Reach & Reset", "sport": "Pickleball", "role": "All", "cat": "Hip Dom", "equip": ["Bodyweight", "Dumbbell"]}
 {"type": "complex", "id": 76, "name": "Delivery Stride Lunge-Step-Press", "sport": "Cricket", "role": "Pacer", "cat": "Multi", "equip": ["Dumbbell", "Box"]}
 {"type": "complex", "id": 82, "name": "Run-Then-Face Reset", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Partner", "Tennis Ball"]}
@@ -51,11 +39,9 @@
 {"type": "complex", "id": 88, "name": "Lob Retreat & Smash", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Bodyweight"]}
 {"type": "complex", "id": 95, "name": "Smash Arm-Speed Snap", "sport": "Badminton", "role": "All", "cat": "Pull", "equip": ["Dumbbell", "Band"]}
 {"type": "complex", "id": 96, "name": "Feint-Read First Step", "sport": "Badminton", "role": "All", "cat": "Primer", "equip": ["Partner", "Bodyweight"]}
-{"type": "complex", "id": 98, "name": "Deep-Lunge Hamstring Eccentric", "sport": "Badminton", "role": "All", "cat": "Hip Dom", "equip": ["Slider", "Dumbbell", "Bench"]}
 {"type": "complex", "id": 99, "name": "Rear-Court Whip Turn", "sport": "Badminton", "role": "All", "cat": "Multi", "equip": ["Band", "Med Ball", "Wall"]}
 {"type": "complex", "id": 100, "name": "Blind-Reaction Lateral Pounce", "sport": "Cricket", "role": "WK", "cat": "Multi", "equip": ["Partner"]}
 {"type": "complex", "id": 101, "name": "Pop-Up Smash", "sport": "Pickleball", "role": "All", "cat": "Push", "equip": ["Dumbbell", "Band"]}
-{"type": "complex", "id": 105, "name": "Lumbar Shielding", "sport": "Cricket", "role": "Pacer", "cat": "Core", "equip": ["Dumbbell", "Cable"]}
 {"type": "complex", "id": 106, "name": "Eccentric Hamstring", "sport": "Cricket", "role": "Pacer", "cat": "Hip Dom", "equip": ["Bodyweight"]}
 {"type": "complex", "id": 107, "name": "Deep Crouch to Pop", "sport": "Cricket", "role": "WK", "cat": "Multi", "equip": ["Bodyweight"]}
 {"type": "complex", "id": 108, "name": "Trigger-Step Decoupling", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Bodyweight", "Partner"]}
@@ -71,32 +57,24 @@
 {"type": "complex", "id": 124, "name": "Kitchen Dink Lift & Cross", "sport": "Pickleball", "role": "All", "cat": "Multi", "equip": ["Cable"]}
 {"type": "complex", "id": 125, "name": "Transition Zone Advance & Plant", "sport": "Pickleball", "role": "All", "cat": "Multi", "equip": ["Bodyweight"]}
 {"type": "complex", "id": 126, "name": "Calf-Achilles Reach Armor", "sport": "Pickleball", "role": "All", "cat": "Primer", "equip": ["Bodyweight"]}
-{"type": "complex", "id": 127, "name": "Reactive Split-Step", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Plate"]}
 {"type": "complex", "id": 129, "name": "Ground-Up Press", "sport": "Tennis", "role": "All", "cat": "Push", "equip": ["Landmine", "Med Ball"]}
 {"type": "complex", "id": 131, "name": "Scapular Endurance", "sport": "Universal", "role": "All", "cat": "Pull", "equip": ["Dumbbell", "Band"]}
-{"type": "complex", "id": 132, "name": "Closed-Stance Transfer", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Cable"]}
 {"type": "complex", "id": 133, "name": "Wide Ball Recovery", "sport": "Tennis", "role": "All", "cat": "Knee Dom", "equip": ["Bodyweight"]}
 {"type": "complex", "id": 134, "name": "Concentric Overload", "sport": "Pickleball", "role": "All", "cat": "Knee Dom", "equip": ["Dumbbell"]}
 {"type": "complex", "id": 135, "name": "Sled Start Isometric Drive", "sport": "Hyrox", "role": "All", "cat": "Multi", "equip": ["Sled"]}
 {"type": "complex", "id": 136, "name": "Helical Cross-Sling", "sport": "Universal", "role": "All", "cat": "Pull", "equip": ["Cable"]}
 {"type": "complex", "id": 137, "name": "Commercial Gym French Contrast", "sport": "Universal", "role": "All", "cat": "Multi", "equip": ["Trap Bar", "Bench"]}
-{"type": "complex", "id": 138, "name": "Hinge Potentiation", "sport": "Universal", "role": "All", "cat": "Hip Dom", "equip": ["Trap Bar"]}
 {"type": "complex", "id": 139, "name": "Rotational Posture", "sport": "Cricket", "role": "Spinner", "cat": "Core", "equip": ["Cable"]}
 {"type": "complex", "id": 140, "name": "Scissor-Kick Vertical Brake", "sport": "Badminton", "role": "All", "cat": "Multi", "equip": ["Trap Bar"]}
 {"type": "complex", "id": 141, "name": "Terminal Pronation & Cuff Brake", "sport": "Badminton", "role": "All", "cat": "Pull", "equip": ["Cable", "Dumbbell"]}
 {"type": "complex", "id": 142, "name": "Jump Smash Two-Foot Rebound", "sport": "Badminton", "role": "All", "cat": "Multi", "equip": ["Trap Bar"]}
-{"type": "complex", "id": 143, "name": "Forearm Torque", "sport": "Cricket", "role": "Spinner", "cat": "Primer", "equip": ["Landmine"]}
-{"type": "complex", "id": 144, "name": "Zero-Rise Lateral Pouch", "sport": "Cricket", "role": "WK", "cat": "Knee Dom", "equip": ["Bodyweight"]}
 {"type": "complex", "id": 145, "name": "Front-Arm Block & Snap", "sport": "Cricket", "role": "Pacer", "cat": "Multi", "equip": ["Band"]}
-{"type": "complex", "id": 146, "name": "Transverse Sling Power", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Cable", "Med Ball"]}
 {"type": "complex", "id": 147, "name": "Hamstring Sprint Armor", "sport": "Cricket", "role": "Batsman", "cat": "Hip Dom", "equip": ["Slider"]}
 {"type": "complex", "id": 148, "name": "Sweep Base & Swing", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Med Ball", "Wall"]}
 {"type": "complex", "id": 149, "name": "Cut & Slash Load", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Cable"]}
 {"type": "complex", "id": 150, "name": "Pick-Up & Throw", "sport": "Cricket", "role": "Pacer", "cat": "Multi", "equip": ["Med Ball", "Wall"]}
 {"type": "complex", "id": 151, "name": "Wicket Launch Sled-to-Sprint", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Sled"]}
 {"type": "complex", "id": 152, "name": "Drive Finish Balance", "sport": "Cricket", "role": "Batsman", "cat": "Knee Dom", "equip": ["Bodyweight"]}
-{"type": "complex", "id": 153, "name": "Sled Pull Backward Lean", "sport": "Hyrox", "role": "All", "cat": "Pull", "equip": ["Cable", "Band"]}
-{"type": "complex", "id": 154, "name": "Wall Ball Elastic Rebound", "sport": "Hyrox", "role": "All", "cat": "Push", "equip": ["Dumbbell", "Med Ball", "Wall"]}
 {"type": "complex", "id": 155, "name": "Sled Drive to Run-Out", "sport": "Hyrox", "role": "All", "cat": "Multi", "equip": ["Sled"]}
 {"type": "complex", "id": 156, "name": "NVZ Rapid-Fire Iso-Block", "sport": "Pickleball", "role": "All", "cat": "Primer", "equip": ["Wall", "Tennis Ball"]}
 {"type": "complex", "id": 157, "name": "NVZ Boundary Reach & Recoil", "sport": "Pickleball", "role": "All", "cat": "Knee Dom", "equip": ["Band"]}
@@ -107,10 +85,32 @@
 {"type": "complex", "id": 163, "name": "Drop-Shot Dash & Brake", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Sled"]}
 {"type": "complex", "id": 164, "name": "Run-Around Plant & Fire", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Med Ball", "Wall"]}
 {"type": "complex", "id": 165, "name": "Distal Foot/Ankle Stiffness", "sport": "Universal", "role": "All", "cat": "Primer", "equip": ["Bodyweight"]}
-{"type": "complex", "id": 166, "name": "Asymmetrical Chaos Lunge & Push", "sport": "Universal", "role": "All", "cat": "Multi", "equip": ["Dumbbell", "Cable"]}
 {"type": "complex", "id": 168, "name": "Fatigued Glove Speed", "sport": "Cricket", "role": "WK", "cat": "Primer", "equip": ["Partner"]}
 {"type": "complex", "id": 169, "name": "Lateral Sled Contrast", "sport": "Tennis", "role": "All", "cat": "Knee Dom", "equip": ["Sled"]}
 {"type": "complex", "id": 170, "name": "Cervical-Vestibular Integration", "sport": "Universal", "role": "All", "cat": "Primer", "equip": ["Band", "Tennis Ball", "Wall"]}
+{"type": "complex", "id": 171, "name": "Open-Stance Decel & Scoop", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Med Ball"]}
+{"type": "complex", "id": 172, "name": "X-Factor Coil & Fire", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Band", "Med Ball"]}
+{"type": "complex", "id": 173, "name": "Rotational Decel Buffer", "sport": "Universal", "role": "All", "cat": "Core", "equip": ["Med Ball", "Wall"]}
+{"type": "complex", "id": 174, "name": "Lead-Arm Pull & Brace", "sport": "Cricket", "role": "Batsman", "cat": "Pull", "equip": ["Cable"]}
+{"type": "complex", "id": 175, "name": "Lumbar Shielding", "sport": "Cricket", "role": "Pacer", "cat": "Core", "equip": ["Dumbbell", "Cable"]}
+{"type": "complex", "id": 176, "name": "Overspeed Eccentric Snap-Down", "sport": "Universal", "role": "All", "cat": "Hip Dom", "equip": ["Band"]}
+{"type": "complex", "id": 177, "name": "Rapid CoM Drop & Block", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Band"]}
+{"type": "complex", "id": 178, "name": "Closed-Stance Transfer", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Cable"]}
+{"type": "complex", "id": 179, "name": "Hinge Potentiation", "sport": "Universal", "role": "All", "cat": "Hip Dom", "equip": ["Trap Bar"]}
+{"type": "complex", "id": 180, "name": "Forearm Torque", "sport": "Cricket", "role": "Spinner", "cat": "Primer", "equip": ["Landmine"]}
+{"type": "complex", "id": 181, "name": "Compromised Grip Carry", "sport": "Hyrox", "role": "All", "cat": "Core", "equip": ["Trap Bar", "Dumbbell"]}
+{"type": "complex", "id": 182, "name": "Deep-Lunge Hamstring Eccentric", "sport": "Badminton", "role": "All", "cat": "Hip Dom", "equip": ["Slider", "Dumbbell"]}
+{"type": "complex", "id": 183, "name": "Reactive Split-Step", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Plate", "Partner"]}
+{"type": "complex", "id": 184, "name": "Zero-Rise Lateral Pouch", "sport": "Cricket", "role": "WK", "cat": "Knee Dom", "equip": ["Bodyweight"]}
+{"type": "complex", "id": 185, "name": "Transverse Sling Power", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Cable", "Med Ball"]}
+{"type": "complex", "id": 186, "name": "Sled Pull Backward Lean", "sport": "Hyrox", "role": "All", "cat": "Pull", "equip": ["Cable", "Band"]}
+{"type": "complex", "id": 187, "name": "Wall Ball Elastic Rebound", "sport": "Hyrox", "role": "All", "cat": "Push", "equip": ["Dumbbell", "Med Ball", "Wall"]}
+{"type": "complex", "id": 188, "name": "Asymmetrical Chaos Lunge & Push", "sport": "Universal", "role": "All", "cat": "Multi", "equip": ["Dumbbell", "Cable"]}
+{"type": "complex", "id": 189, "name": "Volley Block Anti-Rotation", "sport": "Pickleball", "role": "All", "cat": "Core", "equip": ["Band"]}
+{"type": "complex", "id": 190, "name": "Bat-Impact Anti-Deflection", "sport": "Cricket", "role": "Batsman", "cat": "Primer", "equip": ["Kettlebell"]}
+{"type": "complex", "id": 191, "name": "Forearm Anti-Deflection", "sport": "Pickleball", "role": "All", "cat": "Primer", "equip": ["Kettlebell"]}
+{"type": "complex", "id": 192, "name": "Serve Launch", "sport": "Tennis", "role": "All", "cat": "Push", "equip": ["Dumbbell"]}
+{"type": "complex", "id": 193, "name": "Fatigue Lunge Yielding", "sport": "Hyrox", "role": "All", "cat": "Knee Dom", "equip": ["Dumbbell"]}
 {"type": "conditioning", "id": 1, "name": "Side-Deck Straddle Sprints", "sport": "Universal", "role": "Treadmill", "cat": "7s sprint/20s rest", "equip": []}
 {"type": "conditioning", "id": 2, "name": "High-Incline Power Hills", "sport": "Universal", "role": "Treadmill", "cat": "12s sprint/24s rest", "equip": []}
 {"type": "conditioning", "id": 3, "name": "Deadmill Sled Push", "sport": "Universal", "role": "Treadmill", "cat": "10s drive/30s rest", "equip": []}
