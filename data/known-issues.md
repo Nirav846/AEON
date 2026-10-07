@@ -162,11 +162,40 @@ plain sight only because the two strings match character for character.
 | 154 | hyrox | Wall Ball Elastic Rebound | `Lower-to-Upper Force Transfer` |
 | 166 | universal | Asymmetrical Chaos Lunge & Push | `Core Anti-Lateral Flexion` |
 
-Also noted, **not** counted above and not a defect on its own: 14 approved
-records carry no cue at all (badminton 24; cricket 1, 2, 3, 4, 5, 9, 11, 15;
-hyrox 56; tennis 17, 18; universal 33, 57). `manual.cue` is optional, so an
-absent cue is a gap in coverage rather than a wrong one — worth filling when
-the placeholder pass runs, but it is not this backlog item.
+## Absent cues — `manual` is null, so there is no `why` either (10)
+
+**Not** counted above and **not** a defect on its own: `manual.cue` is optional,
+so a missing cue is a coverage gap rather than a wrong value. But this group
+needs more writing than the 9 placeholders did, and the reason matters.
+
+The 9 above each had a populated `manual` with a real `why` — only the cue was
+lazy, so the fix was replacing one string. These 10 have `manual: null`, meaning
+**both `why` and `cue` are absent**. So the work is writing the coaching
+rationale from scratch and then the cue, not editing an existing field. Both are
+coaching content, so both need the coach.
+
+| id | sport | focus |
+|---|---|---|
+| 24 | badminton | `Lateral Mobility` |
+| 1 | cricket | `Deceleration & Rotational Power` |
+| 2 | cricket | `Change of Direction` |
+| 4 | cricket | `Rotational Power` |
+| 5 | cricket | `Force Absorption` |
+| 9 | cricket | `Rotational Mobility` |
+| 11 | cricket | `Isometric Endurance` |
+| 15 | cricket | `Mobility & Power` |
+| 56 | hyrox | `Horizontal RFD under Lactate Accumulation` |
+| 57 | universal | `Vertical Force Absorption to Horizontal Propulsion` |
+
+Verified 2026-10-07: all 10 are `status: approved`, all have `manual: null`, and
+**none** is a `cue == focus` placeholder — so this is unambiguously a
+"write a cue" job with no mixed cases.
+
+**Count corrected from 14 to 10.** The original note listed 14 ids; four have
+since been superseded and need nothing — cricket 3 (→ 190, no-fallback
+convention), tennis 17 (→ 171), tennis 18 (→ 192), universal 33 (→ 176). The
+stale number would have had the next session chasing records that no longer
+exist in the live set.
 
 ## Rejected-inbox id re-keyed: 168 → 999 (2026-10-06)
 
