@@ -23,8 +23,26 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
-	</PropertyGroup>
+<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+  
+  		<!-- Release must produce a single installable APK.
+  
+  		     Debug builds are NOT standalone-installable. The .NET Android SDK ships a
+  		     fast-deploy pair (com.aeon.app-Signed.apk + com.aeon.app.apk) whose managed
+  		     assemblies are pushed separately to the device. If that sidecar is missing the
+  		     app aborts at ~2s uptime with a native SIGABRT and no Java stack trace:
+  
+  		       Abort message: 'No assemblies found in
+  		       '/data/user/0/<pkg>/files/.__override__/arm64-v8a' ... Exiting...'
+  
+  		     Setting this for Release means a plain `dotnet build -c Release` always yields
+  		     an installable artifact and the flag cannot be forgotten. See
+  		     data/known-issues.md for the install and verify procedure.
+  
+  		     Of the two APKs Release emits, ONLY com.aeon.app-Signed.apk is installable;
+  		     com.aeon.app.apk is the unsigned intermediate. -->
+  		<AndroidPackageFormat Condition="'$(Configuration)' == 'Release'">apk</AndroidPackageFormat>
+  	</PropertyGroup>
 
 	<ItemGroup>
 		<!-- App Icon -->

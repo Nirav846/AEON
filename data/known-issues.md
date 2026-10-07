@@ -188,6 +188,62 @@ line, `status`, `manual` and `reason` all preserved.
 
 If rejected proposals accumulate, re-key them into a reserved band (900+) rather
 than letting them occupy the live sequence again.
+## Building an installable APK: Debug builds do NOT run on a device
+
+Confirmed against a physical device (OPPO CPH2531, Android 15 / SDK 35,
+arm64-v8a) on 2026-10-07.
+
+**A default `dotnet build` produces a fast-deploy artifact that will not run
+standalone.** The .NET Android SDK emits *two* APKs plus a sidecar of managed
+assemblies that is normally pushed to the device by the tooling. Install the APK
+alone and it aborts roughly two seconds in, with a **native `SIGABRT` and no Java
+stack trace at all** - so there is nothing in `logcat` except:
+
+```
+F libc  : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid ... (com.aeon.app)
+F DEBUG : Abort message: 'No assemblies found in
+ '/data/user/0/com.aeon.app/files/.__override__/arm64-v8a' or '<unavailable>'.
+ Assuming this is part of Fast Deployment. Exiting...'
+```
+
+This is **not** an ABI problem, not an SDK-floor problem and not an app crash.
+The ABI (`arm64-v8a`) and `minSdkVersion=21` were both fine; managed code is
+never reached, so no managed exception can appear.
+
+**Use Release.** `AndroidPackageFormat=apk` is now pinned in
+`src/Aeon.App/Aeon.App.csproj` for Release, so the flag cannot be forgotten:
+
+```
+dotnet build src/Aeon.App -f net10.0-android -c Release
+adb install -r src/Aeon.App/bin/Release/net10.0-android/com.aeon.app-Signed.apk
+adb shell monkey -p com.aeon.app -c android.intent.category.LAUNCHER 1
+```
+
+**Which APK is which.** Release emits two files and only one is installable:
+
+| file | installable |
+|---|---|
+| `com.aeon.app-Signed.apk` | **yes - this is the one** |
+| `com.aeon.app.apk` | no, unsigned intermediate |
+
+Debug and Release both name their output `com.aeon.app-Signed.apk`, so always
+check the path contains `bin\Release\`, not `bin\Debug\`. Confirm a Release build
+is self-contained by checking for `lib/arm64-v8a/libassembly-store.so` and
+`libaot-Aeon.App.dll.so` inside the APK; their absence means fast-deploy.
+
+**Do not launch with `am start -n com.aeon.app/.MainActivity`.** That component
+name does not exist. .NET Android rewrites managed class names in the final
+manifest, so the real activity is `com.aeon.app/crc64f3c3ad5db5b6f78a.MainActivity`
+(a CRC64 of the class name, and it changes if the class is renamed). To see the
+real one:
+
+```
+aapt2 dump xmltree --file AndroidManifest.xml <apk> | findstr MainActivity
+```
+
+Use the LAUNCHER intent instead - it resolves through the intent-filter and is
+what tapping the icon actually does.
+
 ## Standing rule for new validator checks
 
 A new check in `validate.py` must not early-return on an absent field: an absent field means "not judged", which is indistinguishable from "judged and passed", and that is precisely how the `swap_equipment` fold hid inversions across 40+ records for weeks.
