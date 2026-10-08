@@ -8,6 +8,12 @@ records that carry no `status` field at all (see the note on concepts below).
 Outputs:
   build/app-bundle.json  - the full dataset
   build/bundle-meta.json - tiny manifest: version, generated_at, record_counts
+  src/Aeon.App/Resources/Raw/app-bundle.json - same bytes, embedded in the APK
+
+That third file is a second copy and it is the app's offline fallback: the
+bundle inside the APK is what the app serves when there is no network and no
+usable cache. It is written here on every build so it cannot drift from the
+published bundle.
 
 The app fetches bundle-meta.json first, compares `version` against what it has
 cached, and only re-downloads the full bundle when the hash has changed. Both
@@ -38,6 +44,24 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 BUILD = ROOT / "build"
 KINDS = ("complexes", "circuits", "conditioning", "concepts")
+
+# The copy of the bundle that ships inside the APK, as a MAUI raw asset.
+#
+# This is a second copy of build/app-bundle.json and it exists only because
+# MauiAsset globs inside the project directory. build/ is git-tracked too, so
+# the build could in principle reference it directly, but reaching outside the
+# project root needs Link metadata that MAUI's raw-asset handling does not
+# support reliably. So the copy stays, and is kept in sync HERE rather than by
+# hand.
+#
+# It used to be refreshed manually, which meant every data commit silently
+# shipped an APK carrying an older bundle. The device then served stale data
+# and nothing complained: the records were valid, the published bundle was
+# correct, and the drift was only visible by comparing two files nobody
+# thought to compare. Same shape as the early-return blind spot in
+# validate.py - a dependency nothing checked. sync_embedded() runs on every
+# build, and check_embedded_freshness() in validate.py fails if they diverge.
+EMBEDDED = ROOT / "src/Aeon.App/Resources/Raw/app-bundle.json"
 
 ACTIVE_STATUSES = {"approved"}   # explicit opt-in to inclusion
 
@@ -98,6 +122,29 @@ def current_version():
     return compute_version(bundle)
 
 
+def sync_embedded():
+    """Copy build/app-bundle.json over the copy embedded in the APK.
+
+    Called from build() so every route that regenerates the bundle also
+    refreshes the embedded asset. promote.py and annotate.py both call
+    build(), so a promotion cannot land without the APK copy following it.
+
+    Returns True if the embedded copy was changed. Byte-identical files are
+    left alone (same mtime), which keeps this out of git status on a rebuild
+    that changed nothing relevant.
+    """
+    source = BUILD / "app-bundle.json"
+    if not source.exists():
+        return False
+    payload = source.read_bytes()
+    EMBEDDED.parent.mkdir(parents=True, exist_ok=True)
+    if EMBEDDED.exists() and EMBEDDED.read_bytes() == payload:
+        return False
+    EMBEDDED.write_bytes(payload)
+    print(f"synced embedded APK bundle -> {EMBEDDED.relative_to(ROOT)}")
+    return True
+
+
 def build():
     bundle, counts, excluded, missing = load_active()
     version = compute_version(bundle)
@@ -121,6 +168,8 @@ def build():
         json.dump({"version": version, "generated_at": generated_at,
                    "record_counts": counts}, f, ensure_ascii=False, indent=2)
         f.write("\n")
+
+    sync_embedded()
 
     size = bundle_path.stat().st_size
     print(f"wrote {bundle_path.relative_to(ROOT)}  ({size:,} bytes, {size/1024:.1f} KB)")

@@ -417,6 +417,60 @@ def check_bundle_freshness():
             f"python scripts/build_bundle.py && git add build/ && git commit && git push")
 
 
+def check_embedded_freshness():
+    """Error when the bundle embedded in the APK differs from the published one.
+
+    src/Aeon.App/Resources/Raw/app-bundle.json is a second copy of
+    build/app-bundle.json, and it is the app's offline fallback - what gets
+    served with no network and no usable cache. build_bundle.sync_embedded()
+    writes it on every build, so it should never diverge.
+
+    It did, repeatedly. It was refreshed by hand, so every data commit shipped
+    an APK carrying an older bundle, and nothing said so: the records were
+    valid, the published bundle was current, and the stale copy was only
+    visible by comparing two files nobody thought to compare. A rebuild with no
+    relevant change, a hand-edited embedded file, or a checkout that landed
+    build/ without it would all reopen it.
+
+    An ERROR, unlike check_bundle_freshness. A stale published bundle is a
+    deployment lag and a rebuild fixes it with no judgement needed; a stale
+    embedded copy means the APK and the website serve different data, and the
+    app will quietly keep serving the old one after the network copy is already
+    current. That is a correctness split, not a lag, and it should stop the run.
+    """
+    embedded = ROOT / "src/Aeon.App/Resources/Raw/app-bundle.json"
+    published = ROOT / "build/app-bundle.json"
+    emb_rel = "src/Aeon.App/Resources/Raw/app-bundle.json"
+    pub_rel = "build/app-bundle.json"
+
+    if not published.exists():
+        return                          # bundle not built yet; build_bundle owns that
+    if not embedded.exists():
+        yield_error(emb_rel, 1,
+                    "does not exist - the APK has no offline bundle. Fix with: "
+                    "python scripts/build_bundle.py")
+        return
+
+    emb_bytes = embedded.read_bytes()
+    pub_bytes = published.read_bytes()
+    if emb_bytes == pub_bytes:
+        return
+
+    try:
+        emb_v = json.loads(emb_bytes.decode("utf-8")).get("version")
+        pub_v = json.loads(pub_bytes.decode("utf-8")).get("version")
+    except (UnicodeDecodeError, ValueError):
+        emb_v = pub_v = None
+
+    detail = ""
+    if emb_v and pub_v:
+        detail = f" (embedded {emb_v!r}, published {pub_v!r})"
+    yield_error(emb_rel, 1,
+                f"does not match {pub_rel}{detail}. The APK would ship a different "
+                f"dataset than the website serves. Fix with: "
+                f"python scripts/build_bundle.py")
+
+
 def main():
     complex_paths = glob.glob(str(ROOT / "data/complexes/*.jsonl"))
     inbox_paths = (glob.glob(str(ROOT / "data/inbox/proposed/*.jsonl")) +
@@ -493,6 +547,7 @@ def main():
         conditioning_ids = {r["id"] for _, _, r in conditioning_records}
         check_circuit_refs(circuit_paths, complex_ids, conditioning_ids)
         check_bundle_freshness()
+        check_embedded_freshness()
 
     if ERRORS:
         print(f"FAILED — {len(ERRORS)} issue(s):\n")
