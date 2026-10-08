@@ -111,6 +111,12 @@
 {"type": "complex", "id": 204, "name": "Groin Resilience", "sport": "Cricket", "role": "WK", "cat": "Multi", "equip": ["Bodyweight"]}
 {"type": "complex", "id": 205, "name": "Broad Jump Lactate Tolerance", "sport": "Hyrox", "role": "All", "cat": "Multi", "equip": ["Assault Bike", "SkiErg"]}
 {"type": "complex", "id": 206, "name": "Altitude Drop to Chest Pass", "sport": "Universal", "role": "All", "cat": "Multi", "equip": ["Box", "Med Ball", "Wall"]}
+{"type": "complex", "id": 207, "name": "Single-Leg Axial Brace & Carry", "sport": "Cricket", "role": "Batsman", "cat": "Knee Dom", "equip": ["Dumbbell", "Cable", "Trap Bar"]}
+{"type": "complex", "id": 208, "name": "Depth Drop to Rotational Scoop", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Box", "Med Ball", "Wall"]}
+{"type": "complex", "id": 209, "name": "Approach Jump to Kneeling Side Throw", "sport": "Tennis", "role": "All", "cat": "Push", "equip": ["Bodyweight", "Med Ball", "Wall"]}
+{"type": "complex", "id": 210, "name": "Single-Leg Stick to Sled Drive", "sport": "Tennis", "role": "All", "cat": "Knee Dom", "equip": ["Box", "Sled"]}
+{"type": "complex", "id": 211, "name": "Lateral Lunge to Pallof Brace", "sport": "Tennis", "role": "All", "cat": "Core", "equip": ["Bodyweight", "Cable"]}
+{"type": "complex", "id": 212, "name": "Cut Sequence to Max Stride Sprint", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Bodyweight"]}
 {"type": "conditioning", "id": 1, "name": "Side-Deck Straddle Sprints", "sport": "Universal", "role": "Treadmill", "cat": "7s sprint/20s rest", "equip": []}
 {"type": "conditioning", "id": 2, "name": "High-Incline Power Hills", "sport": "Universal", "role": "Treadmill", "cat": "12s sprint/24s rest", "equip": []}
 {"type": "conditioning", "id": 3, "name": "Deadmill Sled Push", "sport": "Universal", "role": "Treadmill", "cat": "10s drive/30s rest", "equip": []}

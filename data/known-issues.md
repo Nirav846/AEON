@@ -293,6 +293,24 @@ what tapping the icon actually does.
 
 A new check in `validate.py` must not early-return on an absent field: an absent field means "not judged", which is indistinguishable from "judged and passed", and that is precisely how the `swap_equipment` fold hid inversions across 40+ records for weeks.
 
+## Checks that earned their keep (2026-10-08)
+
+Recorded so this file is not only a list of things the tooling missed.
+
+- The equipment/execution cross-check caught an unused tag on Forge-mined id
+  207 (`Single-Leg Axial Brace & Carry`). `equipment` carried `Trap Bar` while
+  the execution said only "Front-Rack Zercher Carry" - the movement name, not
+  the implement. Fixed to `Front-Rack Trap Bar Zercher Carry (20m)` rather than
+  dropping the tag or relaxing the check. This is the mirror image of the
+  early-return blind spot above: there the check stayed quiet when it should
+  have spoken, here it spoke when it should have. Both matter, and the second
+  only shows up if records are authored by hand from a foreign source.
+
+- The inversion check passed all six Forge-mined records on merit. Every swap
+  adds at most one common-tier implement (`Band`) or nothing at all; no swap
+  introduced a scarce implement. Recorded because a clean run is evidence the
+  swap-design discipline held, not evidence the check was absent.
+
 ## Four surfaced inversions (2026-10-07): mini-batch + one queued review
 
 The `all` -> `any` tightening in condition B surfaced four swaps that add a
