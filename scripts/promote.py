@@ -433,6 +433,17 @@ def main():
             return
 
     # --- preview (always printed, so a --confirm run is auditable) ---
+    #
+    # The "would promote" / "would mark" lines below are NOT a dry-run signal.
+    # They print identically on a --confirm run, on purpose, so the write is
+    # auditable after the fact. Do not read them as "nothing was written".
+    # The only dry-run markers are the "PREVIEW ONLY" banner at the end of this
+    # block and the "record(s) promoted" summary after the write path. To check
+    # whether a run actually landed, read the live file's status, not this output:
+    #
+    #     promote.py <sport> "<Name>" --supersede <old id>   # -> PREVIEW ONLY banner
+    #     promote.py <sport> "<Name>" --supersede <old id> --confirm
+    #         -> "would promote..." AND "1 record(s) promoted" (this one wrote)
     nid = next_id()
     first_free = nid
     selected = {id(r) for _, r in to_promote}

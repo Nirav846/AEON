@@ -77,6 +77,22 @@ So these are real swap-design problems, not rule-change requests.
 | 54 | hyrox | Compromised Grip Carry | `[Trap Bar, Dumbbell]` | `[Kettlebell]` | Kettlebell | swap needs a KB while the primary's trap bar is freely dropped |
 | 98 | badminton | Deep-Lunge Hamstring Eccentric | `[Slider, Dumbbell]` | `[Bench]` | Bench | swap is bodyweight but introduces a bench to heel-elevate onto |
 
+## B1_THIRDMACHINE — condition A, swap names a third machine (1)
+
+Surfaced 2026-10-08 while writing the absent-cue batch (ids 197-206). Logged, not
+fixed: that pass was scoped to `why`/`cue` only and a swap change does not belong
+in it. **This supersedes 56.**
+
+| id | sport | name | primary | swap | why |
+|---|---|---|---|---|---|
+| 56 | hyrox | Broad Jump Lactate Tolerance | `[Assault Bike, SkiErg]` | `[S-Bike, Squat Jumps]` | an S-Bike is a wall ball, not an Assault Bike or SkiErg variant — the swap adds a third machine rather than substituting one of the two already required, so it is no fallback at all |
+
+The count inversion is invisible to the equipment-difference rule because every
+tag *is* different from the primary. It fires on the inversion check only because
+`S-Bike` is a reserved implement the primary does not carry. A band or dumbbell
+jump would satisfy the same stimulus and clear it — the squat jump half already
+does.
+
 ## Related: id 100 Blind-Reaction Lateral Pounce (cricket, still approved)
 
 Not part of the 14. A fix was drafted and **rejected** — see
