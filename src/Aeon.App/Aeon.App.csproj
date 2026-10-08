@@ -46,10 +46,15 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+		<!-- NRV monogram. Background #12121A (appicon.svg), foreground white NRV with
+  	     a #8B7CF6 accent rule (appiconfg.svg). Color is the fallback fill for
+  	     launchers that ignore the SVG background. -->
+  	<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#12121A" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+		<!-- Splash ground matches the icon background so there is no flash of a different
+  	     colour between splash and first frame. -->
+  	<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#12121A" BaseSize="128,128" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />

@@ -7,7 +7,7 @@
     <Grid RowDefinitions="Auto,*">
 
         <Label x:Name="HeaderLabel"
-               FontSize="13" TextColor="Gray" Padding="16,10" />
+               FontSize="13" TextColor="{StaticResource Accent}" Padding="16,10" />
 
         <CollectionView x:Name="ModalitiesList" Grid.Row="1"
                         SelectionMode="Single"
@@ -24,7 +24,7 @@
                                        FontSize="13" TextColor="Gray" />
                             </VerticalStackLayout>
                             <Label Grid.Column="1" Text="&#x203A;" FontSize="26"
-                                   TextColor="Gray" VerticalOptions="Center" />
+                                   TextColor="{StaticResource Accent}" VerticalOptions="Center" />
                         </Grid>
                     </Border>
                 </DataTemplate>

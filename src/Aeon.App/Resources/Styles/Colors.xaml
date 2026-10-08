@@ -41,4 +41,12 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+
+    <!-- Accent: the one non-MAUI colour in the app. Matches the NRV icon rule
+  	     (Resources/AppIcon/appiconfg.svg) and the icon/splash ground
+  	     (#12121A), so the launcher icon and the running app read as one thing.
+  	     Used for list chevrons, page titles and the active tab. -->
+    <Color x:Key="Accent">#8B7CF6</Color>
+    <Color x:Key="AccentMuted">#6F63B8</Color>
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Accent}"/>
 </ResourceDictionary>

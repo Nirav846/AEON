@@ -5,6 +5,14 @@ namespace Aeon.App.Pages;
 
 public partial class ComplexDetailPage : ContentPage
 {
+    /// <summary>Accent shared with the NRV icon and the list chevrons. Resolved
+    /// from the app resource dictionary rather than hard-coded, so the icon and
+    /// the running app cannot drift apart.</summary>
+    private static Color AccentColor
+        => Application.Current?.Resources.TryGetValue("Accent", out var v) == true && v is Color c
+            ? c
+            : Color.FromArgb("#8B7CF6");
+
     private readonly Complex _complex;
 
     public ComplexDetailPage(BundleService bundle, Complex complex)
@@ -92,9 +100,15 @@ public partial class ComplexDetailPage : ContentPage
         Body.Add(new Label
         {
             Text = header,
-            FontSize = 13,
+            // Section headers sit above the record title's subtitle and below the
+            // title itself: uppercase, letter-spaced, accent-coloured, so a long
+            // why/cue block reads as its own section rather than running on from
+            // the field above it.
+            TextColor = AccentColor,
+            FontSize = 12,
             FontAttributes = FontAttributes.Bold,
-            TextColor = Colors.Gray,
+            CharacterSpacing = 1.1,
+            Margin = new Thickness(0, 18, 0, 0),
         });
         Body.Add(new Label
         {

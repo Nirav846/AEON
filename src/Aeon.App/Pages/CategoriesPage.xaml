@@ -18,7 +18,7 @@
                                    FontSize="13" TextColor="Gray" />
                         </VerticalStackLayout>
                         <Label Grid.Column="1" Text="&#x203A;" FontSize="26"
-                               TextColor="Gray" VerticalOptions="Center" />
+                               TextColor="{StaticResource Accent}" VerticalOptions="Center" />
                     </Grid>
                 </Border>
             </DataTemplate>
