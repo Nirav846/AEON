@@ -153,7 +153,7 @@ def check_inversion(path, line_no, r):
     if r.get("status") in INACTIVE_STATUSES:
         return
     eq = [e for e in r.get("equipment", []) if isinstance(e, str)]
-    sw = [e for e in r.get("swap_equipment", []) if isinstance(e, str)]
+    sw = [e for e in (r.get("swap_equipment") or []) if isinstance(e, str)]
     if not sw:
         return
 

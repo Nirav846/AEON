@@ -17,6 +17,19 @@
       "items": { "type": "string", "minLength": 3 },
       "description": "Short athlete-facing outcome phrases, e.g. [\"more power hitting sixes\", \"faster between-wicket running\"]. Free text and deliberately NOT a controlled vocabulary: the real shape is not known until real examples exist. Optional - leaving this absent is correct where no genuine outcome is obvious from the complex itself; do not invent one to fill the gap."
     },
+    "muscles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "primary muscles trained, reference only. Optional - leaving this absent is correct where no muscle focus is obvious from the complex itself."
+    },
+    "how_to_perform": {
+      "type": "string",
+      "description": "a fuller teaching walkthrough, distinct from the terse execution line and the short manual.cue. Optional - leaving this absent is correct where no additional teaching detail is provided."
+    },
+    "guidance": {
+      "type": "string",
+      "description": "a typical rep/hold range for reference only -- NOT a per-athlete prescription. AEON does not store prescriptions; actual numbers are set per session in the Workout builder. Optional - leaving this absent is correct where no rep/hold guidance is provided."
+    },
     "execution": { "type": "string", "minLength": 5 },
     "swap": { "type": "string", "minLength": 5 },
     "equipment": { "type": "array", "items": { "type": "string" } },
