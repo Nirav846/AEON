@@ -1,3 +1,4 @@
+using Aeon.App.Models;
 using Aeon.App.Services;
 using Aeon.Data;
 
@@ -13,11 +14,13 @@ public partial class ComplexDetailPage : ContentPage
             ? c
             : Color.FromArgb("#8B7CF6");
 
+    private readonly BundleService _bundle;
     private readonly Complex _complex;
 
     public ComplexDetailPage(BundleService bundle, Complex complex)
     {
         InitializeComponent();
+        _bundle = bundle;
         _complex = complex;
         Title = complex.Name;
         Build();
@@ -57,6 +60,18 @@ public partial class ComplexDetailPage : ContentPage
         if (_complex.Goals is { Count: > 0 })
         {
             AddSection("Goals", string.Join(Environment.NewLine, _complex.Goals.Select(g => "• " + g)));
+        }
+        if (!string.IsNullOrWhiteSpace(_complex.Muscles))
+        {
+            AddSection("Muscles", _complex.Muscles!);
+        }
+        if (!string.IsNullOrWhiteSpace(_complex.HowToPerform))
+        {
+            AddSection("How to perform", _complex.HowToPerform!);
+        }
+        if (!string.IsNullOrWhiteSpace(_complex.Guidance))
+        {
+            AddSection("Guidance", _complex.Guidance!);
         }
         if (!string.IsNullOrWhiteSpace(_complex.Manual?.Cue))
         {
@@ -116,5 +131,25 @@ public partial class ComplexDetailPage : ContentPage
             FontSize = 15,
             LineBreakMode = LineBreakMode.WordWrap,
         });
+    }
+
+    /// <summary>Send this complex to a workout. The entry stores only ref_type +
+    /// id (resolved live against the bundle from now on) plus this name as a
+    /// snapshot, so it still renders if the record ever leaves the bundle.</summary>
+    private async void OnAddToWorkout(object? sender, EventArgs e)
+    {
+        try
+        {
+            await WorkoutPicker.AddAsync(this, _bundle, new WorkoutEntry
+            {
+                RefType = WorkoutEntry.RefComplex,
+                RefId = _complex.Id,
+                NameSnapshot = _complex.Name,
+            });
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Not saved", ex.Message, "OK");
+        }
     }
 }

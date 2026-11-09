@@ -25,5 +25,12 @@
                 ContentTemplate="{DataTemplate pages:SearchPage}"
                 Route="search" />
         </Tab>
+        <!-- Appended as the fourth/last tab: the existing three keep their order.
+             Destination naming, same as its neighbours — the tab bar reads as a map. -->
+        <Tab Title="Workouts">
+            <ShellContent
+                ContentTemplate="{DataTemplate pages:WorkoutsPage}"
+                Route="workouts" />
+        </Tab>
     </TabBar>
 </Shell>

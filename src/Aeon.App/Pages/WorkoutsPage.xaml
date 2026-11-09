@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Aeon.App.Models"
+             x:Class="Aeon.App.Pages.WorkoutsPage"
+             Title="Workouts">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="New" Clicked="OnNewWorkout" />
+    </ContentPage.ToolbarItems>
+    <Grid RowDefinitions="*,Auto">
+
+        <CollectionView x:Name="WorkoutsList" Grid.Row="0"
+                        SelectionMode="Single"
+                        SelectionChanged="OnWorkoutSelected">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:WorkoutRow">
+                    <Border Stroke="LightGray" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12"
+                            Margin="12,6" Padding="16,14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="3">
+                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" />
+                                <Label Text="{Binding Detail}" FontSize="13" TextColor="Gray" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1" Text="&#x203A;" FontSize="26"
+                                   TextColor="{StaticResource Accent}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Label x:Name="EmptyLabel" Grid.Row="0" IsVisible="False"
+               HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+               FontSize="14" TextColor="Gray" Padding="32,0"
+               Text="No workouts yet.&#x0a;Open a complex or protocol, then tap Add to workout." />
+
+        <!-- Same explicit-row treatment as the other tabs. Carries the store's recovery
+             Notice when loading had to archive or restore something — surfaced, hidden from nobody. -->
+        <Label x:Name="FooterLabel" Grid.Row="1"
+               HeightRequest="40" VerticalOptions="Center"
+               FontSize="12" TextColor="{StaticResource Accent}"
+               LineBreakMode="TailTruncation"
+               HorizontalTextAlignment="Center"
+               Padding="16,0" />
+    </Grid>
+</ContentPage>

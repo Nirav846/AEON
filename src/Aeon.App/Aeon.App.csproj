@@ -68,6 +68,20 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<!-- PDF export for the Workouts tab (WorkoutPdf.cs). FossPDF 2026.5.1 is MIT
+		     (verified nuspec) — chosen over QuestPDF after the on-device PoC passed.
+		     It renders through SkiaSharp + HarfBuzz; the managed DLLs come in
+		     transitively, but the Android native .so files live in the separate
+		     NativeAssets packages below. Versions are pinned to match FossPDF's
+		     dependency closure exactly (SkiaSharp 3.119.4 / HarfBuzzSharp 8.3.1.5).
+		     Parked fallback order if this ever regresses: old QuestPDF, then a
+		     hand-rolled minimal writer, then iText (AGPL) only as a last resort. -->
+		<PackageReference Include="FossPDF" Version="2026.5.1" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Android" Version="3.119.4" />
+		<PackageReference Include="HarfBuzzSharp.NativeAssets.Android" Version="8.3.1.5" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\Aeon.Data\Aeon.Data.csproj" />
 	</ItemGroup>
 

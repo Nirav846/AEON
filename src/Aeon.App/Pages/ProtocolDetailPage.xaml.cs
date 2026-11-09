@@ -14,11 +14,13 @@ public partial class ProtocolDetailPage : ContentPage
             ? c
             : Color.FromArgb("#8B7CF6");
 
+    private readonly BundleService _bundle;
     private readonly ConditioningProtocol _protocol;
 
     public ProtocolDetailPage(BundleService bundle, ConditioningProtocol protocol)
     {
         InitializeComponent();
+        _bundle = bundle;
         _protocol = protocol;
         Title = protocol.Name;
         Build();
@@ -89,4 +91,23 @@ public partial class ProtocolDetailPage : ContentPage
         LineBreakMode = LineBreakMode.WordWrap,
         TextColor = raw is null ? Colors.Gray : Colors.Black,
     };
+
+    /// <summary>Send this protocol to a workout — conditioning entries carry the same
+    /// ref + snapshot shape as complexes, so one workout can hold both kinds.</summary>
+    private async void OnAddToWorkout(object? sender, EventArgs e)
+    {
+        try
+        {
+            await WorkoutPicker.AddAsync(this, _bundle, new WorkoutEntry
+            {
+                RefType = WorkoutEntry.RefConditioning,
+                RefId = _protocol.Id,
+                NameSnapshot = _protocol.Name,
+            });
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Not saved", ex.Message, "OK");
+        }
+    }
 }
