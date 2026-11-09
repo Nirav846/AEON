@@ -1,0 +1,19 @@
+{
+  "name": "AEON — S&C Field Console",
+  "short_name": "AEON",
+  "description": "Sport-specific S&C complex database for the gym floor.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23121212'/%3E%3Cpath d='M96 340 180 172h48l-84 168zm120 0 84-168h48l-84 168z' fill='%2300E5FF'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

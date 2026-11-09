@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="theme-color" content="#121212" />
+<title>AEON — S&C Field Console</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<style>
+:root{
+  --bg:#121212; --surf:#1E1E1E; --surf2:#262626; --surf3:#2E2E2E;
+  --line:#3A3A3A; --line-soft:#2A2A2A;
+  --txt:#F2F2F2; --txt-dim:#A8A8A8; --txt-mute:#6E6E6E;
+  --neon:#00E5FF; --neon-ink:#00252B;
+  --amber:#FFB300; --green:#00E676; --red:#FF5252;
+  --r-lg:20px; --r-md:14px; --r-sm:10px;
+  --pad:16px; --tap:48px;
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+  --mono:ui-monospace,"Roboto Mono",SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);
+  font-family:Roboto,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.4;overscroll-behavior-y:none}
+body{padding-bottom:calc(72px + var(--safe-b))}
+h1,h2,h3,p{margin:0}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+
+/* ---------- App bar ---------- */
+.appbar{position:sticky;top:0;z-index:40;background:rgba(18,18,18,.92);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line-soft);
+  padding:calc(var(--safe-t) + 10px) var(--pad) 10px}
+.appbar__row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.brand{font-weight:700;letter-spacing:.14em;font-size:13px;color:var(--txt-dim);text-transform:uppercase}
+.brand b{color:var(--neon)}
+.health{margin-left:auto;display:flex;gap:6px;align-items:center;font:600 11px/1 var(--mono);
+  color:var(--txt-mute);border:1px solid var(--line);border-radius:999px;padding:6px 10px}
+.health .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.health.warn{color:var(--amber);border-color:#5a4400}
+.health.warn .dot{background:var(--amber);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+
+.search{display:flex;align-items:center;gap:10px;background:var(--surf2);
+  border:1px solid var(--line);border-radius:999px;height:var(--tap);padding:0 16px}
+.search:focus-within{border-color:var(--neon);box-shadow:0 0 0 3px rgba(0,229,255,.16)}
+.search svg{flex:none;opacity:.6}
+.search input{flex:1;background:none;border:0;color:var(--txt);font-size:16px;outline:none;min-width:0}
+.search input::placeholder{color:var(--txt-mute)}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0 2px;margin:0 calc(var(--pad)*-1);
+  padding-left:var(--pad);padding-right:var(--pad);scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);
+  background:var(--surf);color:var(--txt-dim);font-size:14px;font-weight:500;
+  display:flex;align-items:center;gap:8px;transition:.15s}
+.chip[aria-pressed="true"]{background:var(--neon);color:var(--neon-ink);border-color:var(--neon);font-weight:600}
+.chip .n{font:600 11px/1 var(--mono);opacity:.7}
+
+/* ---------- Content ---------- */
+.wrap{padding:0 var(--pad)}
+.section-h{display:flex;align-items:baseline;gap:10px;margin:22px 0 10px}
+.section-h h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt-mute);font-weight:700}
+.section-h .count{margin-left:auto;font:600 12px/1 var(--mono);color:var(--txt-mute)}
+
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
+
+/* M3 card: subtle border, low elevation */
+.card{background:var(--surf);border:1px solid var(--line-soft);border-radius:var(--r-lg);
+  padding:16px;text-align:left;width:100%;display:block;transition:.15s;position:relative}
+.card:active{background:var(--surf2);transform:scale(.99)}
+.card__top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.tag{font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  padding:5px 9px;border-radius:7px;background:var(--surf3);color:var(--txt-dim)}
+.tag--sport{color:var(--neon);background:rgba(0,229,255,.10)}
+.tag--circuit{color:#B388FF;background:rgba(179,136,255,.12)}
+.tag--cond{color:#69F0AE;background:rgba(105,240,174,.10)}
+.tag--concept{color:var(--amber);background:rgba(255,179,0,.10)}
+.card__name{font-size:24px;font-weight:700;letter-spacing:-.01em;line-height:1.18;margin:2px 0 8px}
+.card__meta{font-size:13px;color:var(--txt-dim);line-height:1.5}
+.card__meta .mono{font-family:var(--mono);color:var(--txt)}
+.card__mov{display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+  font:600 12px/1 var(--mono);color:var(--txt-dim)}
+.pill-role{margin-left:auto;font:600 11px/1 var(--mono);color:var(--txt-mute)}
+
+/* staged / dotted */
+.card--staged{border-style:dashed;border-color:#4a4a4a;background:linear-gradient(180deg,rgba(0,229,255,.05),transparent 60%)}
+.badge-staged{position:absolute;top:-1px;right:14px;font:700 10px/1 var(--mono);letter-spacing:.08em;
+  color:var(--neon-ink);background:var(--neon);padding:5px 8px;border-radius:0 0 8px 8px}
+
+/* warning */
+.warncard{display:flex;gap:12px;align-items:flex-start;background:rgba(255,179,0,.09);
+  border:1px solid #6b5300;border-radius:var(--r-md);padding:14px;margin-top:12px}
+.warncard svg{flex:none;margin-top:1px}
+.warncard b{color:var(--amber);font-size:13px;font-family:var(--mono);letter-spacing:.04em}
+.warncard p{font-size:13px;color:#e8cf9a;margin-top:4px}
+.warncard .fix{margin-top:10px;display:inline-flex;height:36px;align-items:center;padding:0 14px;
+  border-radius:8px;background:var(--amber);color:#241a00;font-weight:700;font-size:13px}
+
+.empty{text-align:center;color:var(--txt-mute);padding:48px 20px;font-size:14px}
+
+/* ---------- Bottom nav ---------- */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:45;background:rgba(24,24,24,.96);
+  backdrop-filter:blur(14px);border-top:1px solid var(--line-soft);
+  display:flex;padding:6px 8px calc(6px + var(--safe-b))}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+  min-height:56px;justify-content:center;color:var(--txt-mute);border-radius:14px;font-size:11px;font-weight:600}
+.nav button[aria-current="true"]{color:var(--neon)}
+.nav button[aria-current="true"] .ic{background:rgba(0,229,255,.16)}
+.nav .ic{width:56px;height:30px;border-radius:999px;display:grid;place-items:center;transition:.15s}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex;background:var(--surf);border:1px solid var(--line);border-radius:999px;padding:4px;margin-top:16px}
+.tabs button{flex:1;height:44px;border-radius:999px;font-size:14px;font-weight:600;color:var(--txt-dim);
+  display:flex;align-items:center;justify-content:center;gap:8px}
+.tabs button[aria-selected="true"]{background:var(--neon);color:var(--neon-ink)}
+.tabs .n{font:600 11px/1 var(--mono);opacity:.75}
+
+/* actions */
+.rowactions{display:flex;gap:10px;margin-top:14px}
+.btn{height:var(--tap);border-radius:12px;font-weight:700;font-size:15px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 18px;transition:.12s}
+.btn:active{transform:scale(.97)}
+.btn--promote{background:rgba(0,230,118,.14);color:var(--green);border:1px solid #1e6b41;flex:1}
+.btn--reject{background:rgba(255,82,82,.12);color:var(--red);border:1px solid #7a2e2e;flex:1}
+.btn--primary{background:var(--neon);color:var(--neon-ink);width:100%}
+.btn--ghost{border:1px solid var(--line);color:var(--txt-dim);width:100%}
+.btn[disabled]{opacity:.4;pointer-events:none}
+
+/* ---------- Sheet ---------- */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;opacity:0;pointer-events:none;transition:.2s}
+.scrim.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;background:var(--surf);
+  border-radius:28px 28px 0 0;border-top:1px solid var(--line);
+  transform:translateY(102%);transition:transform .28s cubic-bezier(.2,0,0,1);
+  max-height:90vh;display:flex;flex-direction:column;padding-bottom:var(--safe-b)}
+.sheet.open{transform:translateY(0)}
+.sheet__grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:12px auto 4px}
+.sheet__body{overflow-y:auto;padding:8px 20px 20px}
+.sheet__body h2{font-size:22px;font-weight:700;margin:8px 0 6px}
+.kv{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft);font-size:14px}
+.kv .k{flex:none;width:104px;color:var(--txt-mute);font:600 12px/1.5 var(--mono);text-transform:uppercase;letter-spacing:.05em}
+.kv .v{color:var(--txt);line-height:1.5}
+.kv .v.mono{font-family:var(--mono);font-size:13px}
+.field{margin:14px 0}
+.field label{display:block;font:600 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--txt-mute);margin-bottom:8px}
+.field textarea,.field input,.field select{width:100%;background:var(--surf2);border:1px solid var(--line);
+  border-radius:12px;color:var(--txt);font:16px/1.4 inherit;padding:14px;outline:none;min-height:var(--tap)}
+.field textarea{min-height:110px;resize:vertical;font-family:var(--mono);font-size:14px}
+.field.invalid input,.field.invalid textarea,.field.invalid select{border-color:var(--red);background:rgba(255,82,82,.06)}
+.field .err{display:none;color:var(--red);font-size:13px;margin-top:6px;font-weight:500}
+.field.invalid .err{display:block}
+.actions-sticky{position:sticky;bottom:0;background:var(--surf);padding:14px 20px calc(14px + var(--safe-b));border-top:1px solid var(--line-soft)}
+
+/* ---------- Builder ---------- */
+.steplabel{font:700 12px/1 var(--mono);letter-spacing:.1em;color:var(--neon);text-transform:uppercase;margin:26px 0 4px}
+.exercise{background:var(--surf);border:1px solid var(--line-soft);border-radius:var(--r-md);padding:14px;margin-top:12px}
+.exercise__h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.exercise__h b{font-size:15px}
+.exercise__h button{margin-left:auto;color:var(--red);font:600 13px/1 var(--mono)}
+.minigrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.minigrid .field{margin:0}
+.valbanner{position:sticky;top:calc(var(--safe-t) + 96px);z-index:30;display:flex;gap:10px;align-items:center;
+  border-radius:12px;padding:12px 14px;margin:14px 0;font-size:13px;font-weight:600;border:1px solid}
+.valbanner[data-state="ok"]{background:rgba(0,230,118,.10);border-color:#1e6b41;color:var(--green)}
+.valbanner[data-state="err"]{background:rgba(255,82,82,.10);border-color:#7a2e2e;color:#ff9b9b}
+.valbanner[data-state="idle"]{background:var(--surf);border-color:var(--line);color:var(--txt-dim)}
+.valbanner .ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none}
+.log{font:12px/1.6 var(--mono);background:#0c0c0c;border:1px solid var(--line-soft);border-radius:12px;
+  padding:12px;color:var(--txt-dim);max-height:180px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.toast{position:fixed;left:50%;bottom:calc(84px + var(--safe-b));transform:translateX(-50%) translateY(20px);
+  background:#2b2b2b;border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:12px 18px;
+  font-size:14px;font-weight:600;z-index:80;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <div class="appbar__row">
+    <span class="brand">AEON<b>·</b>FIELD</span>
+    <span class="health" id="health"><span class="dot"></span><span id="healthTxt">Loading…</span></span>
+  </div>
+  <div class="search">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input id="q" type="search" placeholder="Search complexes, circuits, concepts…" autocomplete="off" enterkeyhint="search" />
+  </div>
+  <div class="chips" id="chips"></div>
+</header>
+
+<main id="viewA" class="wrap"></main>
+<main id="viewB" class="wrap hidden"></main>
+<main id="viewC" class="wrap hidden"></main>
+
+<nav class="nav">
+  <button data-tab="A" aria-current="true">
+    <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>Browse</button>
+  <button data-tab="B">
+    <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h13"/></svg></span>Inbox</button>
+  <button data-tab="C">
+    <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>Builder</button>
+</nav>
+
+<div class="scrim" id="scrim"></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true">
+  <div class="sheet__grab"></div>
+  <div class="sheet__body" id="sheetBody"></div>
+</section>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   AEON Field Console — single-file PWA
+   Reads build/index.jsonl + build/app-bundle.json (+ inbox).
+   No framework: instant first paint, tiny token cost.
+   ============================================================ */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function showToast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2600); }
+
+const SPORTS = ["Cricket","Tennis","Badminton","Pickleball","Hyrox","Universal"];
+const CATS = ["Multi","Primer","Core","Knee Dom","Hip Dom","Push","Pull"];
+const ROLES = ["All","Batsman","Pacer","Spinner","WK"];
+
+/* Where build/ and data/ live relative to this page.
+   Serve the REPO ROOT over http and open /web/ -> root is "../". */
+const ROOT_CANDIDATES = ["../", "/", ""];
+let ROOT = "../", idxRoot = "../";
+
+/* ---------- state ---------- */
+const S = {
+  records: [],            // unified browse items
+  tab: "A",
+  filter: "all",
+  query: "",
+  loaded: false,
+  warnings: [],
+};
+
+/* ---------- load ---------- */
+async function load(){
+  try{
+    const idx = await fetchText("build/index.jsonl");
+    const bundle = JSON.parse(await fetchText("build/app-bundle.json"));
+    ROOT = idxRoot;
+    const byId = new Map();
+    for(const k of ["complexes","circuits","conditioning","concepts"])
+      for(const r of (bundle[k]||[])) byId.set(k+":"+r.id, r);
+
+    S.records = idx.trim().split("\n").filter(Boolean).map(l=>{
+      const r = JSON.parse(l);
+      return {...r, full: byId.get(BUNDLE_KEY[r.type]+":"+r.id) || null};
+    });
+
+    // index.jsonl carries complexes/circuits/conditioning but NOT concepts —
+    // pull concepts (and any other missing type) in from the bundle.
+    const have = new Set(S.records.map(r=>r.type+":"+r.id));
+    for(const c of (bundle.concepts||[])){
+      if(have.has("concept:"+c.id)) continue;
+      S.records.push({type:"concept", id:c.id, name:c.name, sport:c.sport||"",
+        role:c.role||"", cat:c.category||"", equip:[], full:c});
+    }
+
+    // inbox proposed (best-effort — served alongside repo root)
+    try{
+      for(const sp of ["cricket","tennis","badminton","pickleball","hyrox","universal","conditioning"]){
+        const raw = await fetchText("data/inbox/proposed/"+sp+".jsonl", true);
+        raw.trim().split("\n").filter(Boolean).forEach(l=>{
+          try{ const r=JSON.parse(l);
+            S.records.push({type:"complex", id:r.id, name:r.name, sport:r.sport, role:r.role,
+              cat:r.category, equip:r.equipment||[], inbox:true, full:r});
+          }catch{}
+        });
+      }
+    }catch{}
+
+    markHealth();
+    S.loaded = true;
+    render();
+  }catch(err){
+    $("#healthTxt").textContent = "Serve over http://";
+    $("#health").classList.add("warn");
+    $("#viewA").innerHTML = `<div class="empty">Could not read <b>build/</b> or <b>data/</b>.<br><br>
+      Serve the <b>repo root</b> over HTTP, then open <b>/web/</b>:<br>
+      <code style="display:inline-block;margin-top:8px;background:#000;padding:6px 10px;border-radius:8px">python3 -m http.server 8080</code><br><br>
+      <span style="color:var(--txt-mute);font:12px var(--mono)">${esc(err.message)}</span></div>`;
+  }
+}
+async function fetchText(url, optional=false){
+  for(const root of ROOT_CANDIDATES){
+    try{
+      const res = await fetch(root+url, {cache:"no-cache"});
+      if(res.ok){ ROOT=root; idxRoot=root; return res.text(); }
+    }catch{}
+  }
+  if(optional) throw new Error("optional");
+  throw new Error("cannot locate "+url+" (tried "+ROOT_CANDIDATES.join(", ")+")");
+}
+
+/* ---------- data health (incl. concept 67 guard) ---------- */
+function markHealth(){
+  S.warnings = [];
+  const c67 = S.records.find(r=>r.type==="concept" && r.id===67);
+  const bad = S.records.find(r=>r.type==="concept" && r.id===67 && /UNKNOWN/i.test(r.full?.what||""));
+  if(bad || c67) S.warnings.push({id:67, kind:"concept"});
+  const h = $("#health"), t = $("#healthTxt");
+  if(S.warnings.length){ h.classList.add("warn"); t.textContent = S.warnings.length+" DATA FLAG"; }
+  else { h.classList.remove("warn"); t.textContent = S.records.length+" RECORDS"; }
+}
+
+/* ---------- helpers ---------- */
+const typeClass = t => t==="complex"?"tag--sport":t==="circuit"?"tag--circuit":t==="conditioning"?"tag--cond":"tag--concept";
+const typeLabel = t => t==="complex"?"Complex":t==="circuit"?"Circuit":t==="conditioning"?"Conditioning":"Concept";
+const BUNDLE_KEY = {complex:"complexes",circuit:"circuits",conditioning:"conditioning",concept:"concepts"};
+function movementCount(r){
+  const f=r.full; if(!f) return null;
+  if(r.type==="complex") return (f.execution||"").includes("+")?2:1;
+  if(r.type==="circuit") return Array.isArray(f.stations)?f.stations.length:null;
+  return null;
+}
+function coachWarning(id){
+  return S.warnings.some(w=>w.id===id);
+}
+
+/* ============================================================
+   SCREEN A — Browse hub
+   ============================================================ */
+const FILTERS = [
+  {k:"all",label:"All"},
+  {k:"sport",label:"Sport"},
+  {k:"circuit",label:"Circuits"},
+  {k:"conditioning",label:"Conditioning"},
+  {k:"concept",label:"Coaching Concepts"},
+];
+function renderChips(){
+  const counts = {
+    all:S.records.length,
+    sport:S.records.filter(r=>r.type==="complex").length,
+    circuit:S.records.filter(r=>r.type==="circuit").length,
+    conditioning:S.records.filter(r=>r.type==="conditioning").length,
+    concept:S.records.filter(r=>r.type==="concept").length,
+  };
+  $("#chips").innerHTML = FILTERS.map(f=>
+    `<button class="chip" data-filter="${f.k}" aria-pressed="${S.filter===f.k}">${f.label}<span class="n">${counts[f.k]}</span></button>`).join("");
+}
+function passesFilter(r){
+  switch(S.filter){
+    case "sport": return r.type==="complex";
+    case "circuit": return r.type==="circuit";
+    case "conditioning": return r.type==="conditioning";
+    case "concept": return r.type==="concept";
+    default: return true;
+  }
+}
+function matches(r){
+  if(!passesFilter(r)) return false;
+  if(!S.query) return true;
+  const q=S.query.toLowerCase();
+  return [r.name,r.sport,r.role,r.cat,typeLabel(r.type),(r.equip||[]).join(" ")]
+    .filter(Boolean).join(" ").toLowerCase().includes(q);
+}
+
+function renderA(){
+  renderChips();
+  const rows = S.records.filter(matches);
+  if(!rows.length){ $("#viewA").innerHTML = `<div class="empty">No match for “${esc(S.query)}”.</div>`; return; }
+
+  // group by sport / type
+  const groups = new Map();
+  for(const r of rows){
+    const key = r.type==="complex" ? (r.sport||"Other")
+      : r.type==="circuit" ? "Circuits"
+      : r.type==="conditioning" ? "Conditioning"
+      : "Coaching Concepts";
+    if(!groups.has(key)) groups.set(key,[]);
+    groups.get(key).push(r);
+  }
+  const rank = k => { const i=SPORTS.indexOf(k); return i<0?99:i; };
+  const order = [...groups.keys()].sort((a,b)=>rank(a)-rank(b)||a.localeCompare(b));
+
+  let html = "";
+  if(S.warnings.length) html += warnBanner();
+  for(const g of order){
+    const items = groups.get(g).sort((a,b)=>a.name.localeCompare(b.name));
+    html += `<div class="section-h"><h2>${esc(g)}</h2><span class="count">${items.length}</span></div>`;
+    html += `<div class="grid">` + items.map(card).join("") + `</div>`;
+  }
+  $("#viewA").innerHTML = html;
+}
+function warnBanner(){
+  return `<div class="warncard">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFB300" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+    <div>
+      <b>CONCEPT 67 · UNKNOWN</b>
+      <p>Periodization scheme corrupted — original sheet value read “8/5/2003”. The Week 1 Max Effort scheme needs the coach to supply real numbers before use.</p>
+      <button class="fix" data-open-concept="67">Review concept</button>
+    </div></div>`;
+}
+function card(r){
+  const mv = movementCount(r);
+  const staged = r.inbox || r.status==="proposed";
+  const eq = (r.equip||[]);
+  return `<button class="card ${staged?"card--staged":""}" data-id="${r.type}:${r.id}">
+    ${staged?`<span class="badge-staged">STAGED</span>`:""}
+    <div class="card__top">
+      <span class="tag ${typeClass(r.type)}">${typeLabel(r.type)}</span>
+      ${r.sport?`<span class="tag">${esc(r.sport)}</span>`:""}
+      ${r.role?`<span class="pill-role">${esc(r.role)}</span>`:""}
+    </div>
+    <div class="card__name">${esc(r.name)}</div>
+    <div class="card__meta">${esc(r.cat||"")}${eq.length?` · <span class="mono">${esc(eq.slice(0,3).join(", "))}</span>`:""}</div>
+    ${mv!=null?`<div class="card__mov">▚ ${mv} movement${mv>1?"s":""}</div>`:""}
+    ${coachWarning(r.id)&&r.type==="concept"?`<div class="warncard" style="margin-top:12px;padding:10px">
+      <span style="font:700 12px var(--mono);color:var(--amber)">⚠ UNKNOWN — corrupted parameters</span></div>`:""}
+  </button>`;
+}
+
+/* ============================================================
+   SCREEN B — Ideas Bank inbox
+   ============================================================ */
+const decisions = JSON.parse(localStorage.getItem("aeon.decisions")||"{}");
+function saveDecisions(){ localStorage.setItem("aeon.decisions", JSON.stringify(decisions)); }
+function renderB(){
+  const approved = S.records.filter(r=>r.type==="complex" && !r.inbox && (r.full?.status==="approved"));
+  const proposed = S.records.filter(r=>r.inbox);
+  const tab = S.tabB||"proposed";
+  $("#viewB").innerHTML = `
+    <div class="tabs" id="tabsB">
+      <button data-tb="approved" aria-selected="${tab==="approved"}">Live <span class="n">${approved.length}</span></button>
+      <button data-tb="proposed" aria-selected="${tab==="proposed"}">Proposed <span class="n">${proposed.length}</span></button>
+    </div>
+    <div class="section-h"><h2>${tab==="proposed"?"Staged in inbox/proposed":"Approved · data/complexes"}</h2><span class="count">${(tab==="proposed"?proposed:approved).length}</span></div>
+    <div class="grid">${
+      (tab==="proposed"?proposed:approved).map(r=>tab==="proposed"?proposedCard(r):reviewCard(r)).join("")
+      || `<div class="empty">Nothing here yet.</div>`
+    }</div>`;
+}
+function proposedCard(r){
+  const d = decisions[r.type+":"+r.id];
+  if(d) return `<div class="card"><div class="card__top"><span class="tag ${d.decision==="promote"?"tag--cond":"tag--concept"}">${d.decision==="promote"?"✓ QUEUED TO PROMOTE":"✕ REJECTED"}</span></div>
+    <div class="card__name" style="font-size:20px">${esc(r.name)}</div>
+    <div class="card__meta">${d.reason?esc(d.reason):"Decision recorded locally. Export below to commit."}</div></div>`;
+  return `<div class="card card--staged" data-id="${r.type}:${r.id}">
+    <span class="badge-staged">STAGED</span>
+    <div class="card__top"><span class="tag ${typeClass(r.type)}">${typeLabel(r.type)}</span><span class="tag">${esc(r.sport)}</span><span class="pill-role">${esc(r.role)}</span></div>
+    <div class="card__name">${esc(r.name)}</div>
+    <div class="card__meta">${esc(r.cat||"")} · id ${r.id}</div>
+    <div class="rowactions">
+      <button class="btn btn--promote" data-act="promote" data-id="${r.type}:${r.id}">✓ Promote</button>
+      <button class="btn btn--reject" data-act="reject" data-id="${r.type}:${r.id}">✕ Reject</button>
+    </div>
+  </div>`;
+}
+function reviewCard(r){
+  return `<button class="card" data-id="${r.type}:${r.id}">
+    <div class="card__top"><span class="tag tag--sport">Complex</span><span class="tag">${esc(r.sport)}</span><span class="pill-role">${esc(r.role)}</span></div>
+    <div class="card__name">${esc(r.name)}</div>
+    <div class="card__meta">${esc(r.cat||"")}</div></button>`;
+}
+function exportDecisions(){
+  const lines = Object.entries(decisions).map(([k,d])=>({id:Number(k.split(":")[1]),decision:d.decision,reason:d.reason||null,at:d.at}));
+  navigator.clipboard?.writeText(JSON.stringify(lines,null,2));
+  showToast("Decision log copied to clipboard");
+}
+
+/* ============================================================
+   SCREEN C — Complex builder
+   ============================================================ */
+const builder = {
+  id:null, pattern_id:"", name:"", sport:"Cricket", role:"All", category:"Multi",
+  focus:"", execution:"", swap:"", swap_equipment:"", equipment:"",
+  also_suits:[], sources:[], goals:"", exercises:[{name:"",sets:"",reps:"",rpe:""}],
+  manual:{why:"",cue:""}
+};
+function renderC(){
+  $("#viewC").innerHTML = `
+  <div class="valbanner" data-state="idle" id="valbanner">
+    <span class="ic" style="background:rgba(255,255,255,.06)">•</span>
+    <span id="valtext">Fill required fields — validation runs live.</span>
+  </div>
+
+  <div class="steplabel">01 · Identity</div>
+  <div class="field"><label>Complex name *</label><input id="f_name" value="${esc(builder.name)}" placeholder="e.g. Crease Hinge & Broad Jump"/><div class="err">min 3 characters</div></div>
+  <div class="minigrid">
+    <div class="field"><label>Sport *</label><select id="f_sport">${SPORTS.map(s=>`<option ${s===builder.sport?"selected":""}>${s}</option>`).join("")}</select></div>
+    <div class="field"><label>Role *</label><select id="f_role">${ROLES.map(s=>`<option ${s===builder.role?"selected":""}>${s}</option>`).join("")}</select></div>
+    <div class="field"><label>Category *</label><select id="f_category">${CATS.map(s=>`<option ${s===builder.category?"selected":""}>${s}</option>`).join("")}</select></div>
+    <div class="field"><label>Pattern ID</label><input id="f_pattern" value="${esc(builder.pattern_id)}" placeholder="P014"/></div>
+  </div>
+  <div class="field"><label>Focus *</label><input id="f_focus" value="${esc(builder.focus)}" placeholder="Short biomechanical-focus phrase"/><div class="err">required</div></div>
+
+  <div class="steplabel">02 · Prescription blocks (repeatable)</div>
+  <div id="exercises"></div>
+  <button class="btn btn--ghost" id="addEx" style="margin-top:12px">+ Add movement block</button>
+
+  <div class="steplabel">03 · Execution &amp; swap</div>
+  <div class="field"><label>Execution * (Movement A + Immediate Movement B)</label><textarea id="f_execution" placeholder="Goblet Squat Iso-Hold (3s) + Immediate 2-Step Lateral Shuffle to Stick">${esc(builder.execution)}</textarea><div class="err">required — must contain “+” for a contrast pair</div></div>
+  <div class="field"><label>Swap * (different implements)</label><textarea id="f_swap" placeholder="Bodyweight Squat Hold (3s) + Lateral Shuffle to Stick">${esc(builder.swap)}</textarea><div class="err">required unless documented “No equivalent fallback…”.</div></div>
+  <div class="minigrid">
+    <div class="field"><label>Equipment (csv)</label><input id="f_equipment" value="${esc(builder.equipment)}" placeholder="Dumbbell, Band"/></div>
+    <div class="field"><label>Swap equipment (csv)</label><input id="f_swapeq" value="${esc(builder.swap_equipment)}" placeholder="TRX"/></div>
+  </div>
+  <div class="field"><label>Also suits (csv sports)</label><input id="f_alsosuits" value="${esc(builder.also_suits.join(", "))}" placeholder="Tennis, Badminton"/></div>
+  <div class="field"><label>Goals (csv, athlete-facing)</label><input id="f_goals" value="${esc(builder.goals)}" placeholder="more power hitting sixes, fewer hamstring strains"/></div>
+
+  <div class="steplabel">04 · Coaching manual</div>
+  <div class="field"><label>Why</label><textarea id="f_why" placeholder="Rationale the coach can read on the floor">${esc(builder.manual.why)}</textarea></div>
+  <div class="field"><label>Cue</label><textarea id="f_cue" placeholder="One punchy cue">${esc(builder.manual.cue)}</textarea></div>
+
+  <div class="section-h"><h2>Output</h2><span class="count">inbox/proposed/&lt;sport&gt;.jsonl</span></div>
+  <div class="log" id="preview"></div>
+  <div style="display:flex;gap:10px;margin:14px 0 24px">
+    <button class="btn btn--ghost" id="copyJson">Copy JSONL</button>
+    <button class="btn btn--primary" id="toInbox" disabled>Send to inbox</button>
+  </div>`;
+  renderExercises();
+  bindBuilder();
+  runValidation();
+}
+function renderExercises(){
+  $("#exercises").innerHTML = builder.exercises.map((e,i)=>`
+    <div class="exercise">
+      <div class="exercise__h"><b>Movement ${String.fromCharCode(65+i)}</b>${builder.exercises.length>1?`<button data-del="${i}">remove</button>`:""}</div>
+      <div class="field" style="margin-bottom:10px"><label>Name</label><input data-ex="${i}" data-k="name" value="${esc(e.name)}" placeholder="Goblet Squat Iso-Hold"/></div>
+      <div class="minigrid">
+        <div class="field"><label>Sets</label><input data-ex="${i}" data-k="sets" value="${esc(e.sets)}" placeholder="3"/></div>
+        <div class="field"><label>Reps</label><input data-ex="${i}" data-k="reps" value="${esc(e.reps)}" placeholder="5"/></div>
+        <div class="field"><label>Intensity / RPE</label><input data-ex="${i}" data-k="rpe" value="${esc(e.rpe)}" placeholder="RPE 8"/></div>
+      </div>
+    </div>`).join("");
+}
+function readBuilder(){
+  const g=id=>$(id)?.value??"";
+  builder.name=g("#f_name").trim(); builder.sport=g("#f_sport"); builder.role=g("#f_role");
+  builder.category=g("#f_category"); builder.pattern_id=g("#f_pattern").trim();
+  builder.focus=g("#f_focus").trim(); builder.execution=g("#f_execution").trim();
+  builder.swap=g("#f_swap").trim(); builder.equipment=g("#f_equipment").trim();
+  builder.swap_equipment=g("#f_swapeq").trim(); builder.goals=g("#f_goals").trim();
+  builder.also_suits=g("#f_alsosuits").split(",").map(s=>s.trim()).filter(Boolean);
+  builder.manual.why=g("#f_why").trim(); builder.manual.cue=g("#f_cue").trim();
+}
+const csv = s => s.split(",").map(x=>x.trim()).filter(Boolean);
+function toRecord(){
+  const r = {
+    id: null, pattern_id: builder.pattern_id||null, name: builder.name,
+    sport: builder.sport, role: builder.role, category: builder.category,
+    focus: builder.focus, execution: builder.execution, swap: builder.swap,
+    equipment: csv(builder.equipment), status: "proposed",
+    also_suits: builder.also_suits, sources: builder.sources,
+    manual:{why:builder.manual.why,cue:builder.manual.cue}
+  };
+  if(builder.swap_equipment) r.swap_equipment = csv(builder.swap_equipment);
+  if(builder.goals) r.goals = csv(builder.goals);
+  const ex = builder.exercises.filter(e=>e.name);
+  if(ex.length) r.exercises = ex;
+  return r;
+}
+
+/* faithful subset of scripts/validate.py rules */
+function validateRecord(r){
+  const e=[];
+  if(!r.name||r.name.length<3) e.push("name: min 3 characters");
+  if(!SPORTS.includes(r.sport)) e.push("sport: must be one of "+SPORTS.join("/"));
+  if(!CATS.includes(r.category)) e.push("category: invalid enum");
+  if(!r.focus) e.push("focus: required");
+  if(!r.execution) e.push("execution: required");
+  if(!r.swap||r.swap.length<5) e.push("swap: required (or the documented no-fallback sentence)");
+  if(!Array.isArray(r.equipment)||!r.equipment.length) e.push("equipment: at least one tag");
+  if(r.name && /barbell/i.test(r.equipment.join(" ")) && /jump|sprint|plyo/i.test(r.execution))
+    e.push("safety: barbell has no safe exit for an immediate explosive pair");
+  return e;
+}
+function runValidation(){
+  readBuilder();
+  const rec = toRecord();
+  const errs = validateRecord(rec);
+  const banner=$("#valbanner"), txt=$("#valtext");
+  if(!builder.name && !builder.focus && !builder.execution){
+    banner.dataset.state="idle"; txt.textContent="Fill required fields — validation runs live.";
+    $(".ic",banner).textContent="•";
+  } else if(errs.length){
+    banner.dataset.state="err"; $(".ic",banner).textContent="✕";
+    txt.textContent = `${errs.length} issue${errs.length>1?"s":""}: ${errs[0]}`;
+  } else {
+    banner.dataset.state="ok"; $(".ic",banner).textContent="✓";
+    txt.textContent="Schema clean — ready for inbox.";
+  }
+  // per-field error states
+  const map={"#f_name":!rec.name||rec.name.length<3,"#f_focus":!rec.focus,
+    "#f_execution":!rec.execution,"#f_swap":!rec.swap||rec.swap.length<5,
+    "#f_equipment":!rec.equipment.length};
+  for(const [sel,bad] of Object.entries(map)) $(sel)?.closest(".field")?.classList.toggle("invalid",bad);
+  $("#preview").textContent = JSON.stringify(rec,null,2);
+  $("#toInbox").disabled = errs.length>0;
+  return errs;
+}
+function bindBuilder(){
+  ["#f_name","#f_sport","#f_role","#f_category","#f_pattern","#f_focus","#f_execution",
+   "#f_swap","#f_equipment","#f_swapeq","#f_alsosuits","#f_goals","#f_why","#f_cue"]
+   .forEach(s=>$(s)?.addEventListener("input",runValidation));
+  $("#addEx").addEventListener("click",()=>{ readBuilder(); builder.exercises.push({name:"",sets:"",reps:"",rpe:""}); renderExercises(); runValidation(); });
+  $("#exercises").addEventListener("input",e=>{ const i=+e.target.dataset.ex; if(!isNaN(i)) builder.exercises[i][e.target.dataset.k]=e.target.value; });
+  $("#exercises").addEventListener("click",e=>{ const d=e.target.dataset.del; if(d!=null){ builder.exercises.splice(+d,1); renderExercises(); runValidation(); }});
+  $("#copyJson").addEventListener("click",()=>{ readBuilder(); navigator.clipboard?.writeText(JSON.stringify(toRecord())); showToast("Record JSON copied"); });
+  $("#toInbox").addEventListener("click",()=>{
+    const errs=runValidation(); if(errs.length) return;
+    const rec=toRecord(); rec.id="<<assigned on append>>";
+    showToast(`Queued for data/inbox/proposed/${rec.sport.toLowerCase()}.jsonl`);
+    $("#preview").textContent = JSON.stringify(rec,null,2);
+  });
+}
+
+/* ============================================================
+   Sheets
+   ============================================================ */
+function openSheet(html){ $("#sheetBody").innerHTML=html; $("#sheet").classList.add("open"); $("#scrim").classList.add("open"); }
+function closeSheet(){ $("#sheet").classList.remove("open"); $("#scrim").classList.remove("open"); }
+$("#scrim").addEventListener("click",closeSheet);
+
+function openDetail(key){
+  const [type,id]=key.split(":");
+  const r=S.records.find(x=>x.type===type&&x.id==id); if(!r) return;
+  const f=r.full||{};
+  const kv=(k,v,mono)=>v?`<div class="kv"><span class="k">${k}</span><span class="v ${mono?"mono":""}">${esc(v)}</span></div>`:"";
+  let head = coachWarning(r.id)&&type==="concept"
+    ? `<div class="warncard" style="margin:0 0 14px"><b>UNKNOWN — Periodization scheme corrupted</b>
+        <p>${esc(f.what||"")}</p></div>` : "";
+  openSheet(`${head}
+    <div class="card__top"><span class="tag ${typeClass(type)}">${typeLabel(type)}</span>${r.sport?`<span class="tag">${esc(r.sport)}</span>`:""}<span class="pill-role">${esc(r.role||"")}</span></div>
+    <h2>${esc(r.name)}</h2>
+    ${kv("Category",f.category||r.cat)}
+    ${kv("Focus",f.focus)}
+    ${kv("Execution",f.execution,true)}
+    ${kv("Swap",f.swap,true)}
+    ${kv("Format",f.format,true)}
+    ${kv("Equipment",(f.equipment||r.equip||[]).join(", "))}
+    ${kv("Also suits",(f.also_suits||[]).join(", "))}
+    ${kv("Sources",(f.sources||[]).join(", "))}
+    ${f.why?`<div class="field"><label>Why</label><div style="font-size:15px">${esc(f.why)}</div></div>`:""}
+    ${f.why&&f.cue===undefined?"":""}
+    ${f.manual?.why&&f.manual.why!==f.why?`<div class="field"><label>Why</label><div style="font-size:15px">${esc(f.manual.why)}</div></div>`:""}
+    ${f.manual?.cue?`<div class="field"><label>Cue</label><div style="font-size:15px;color:var(--neon)">${esc(f.manual.cue)}</div></div>`:""}
+    ${f.what?`<div class="field"><label>What</label><div style="font-size:15px">${esc(f.what)}</div></div>`:""}
+    ${f.cue&&!f.manual?`<div class="field"><label>Cue</label><div style="font-size:15px;color:var(--neon)">${esc(f.cue)}</div></div>`:""}
+    <div class="actions-sticky"><button class="btn btn--ghost" onclick="closeSheet()">Close</button></div>`);
+}
+window.closeSheet=closeSheet;
+
+function openReject(key){
+  const r=S.records.find(x=>(x.type+":"+x.id)===key);
+  openSheet(`
+    <h2>Reject “${esc(r?.name||"")}”</h2>
+    <p style="color:var(--txt-dim);font-size:14px;margin-bottom:6px">Reason is written to
+      <span style="font-family:var(--mono)">data/inbox/rejected/&lt;sport&gt;.jsonl</span> so the agent loop can learn.</p>
+    <div class="field"><label>Rejection reason *</label>
+      <textarea id="rejReason" placeholder="e.g. cable+barbell transition too far apart on this gym floor"></textarea>
+      <div class="err">A reason is required.</div></div>
+    <div class="actions-sticky">
+      <button class="btn btn--primary" id="rejGo" style="background:var(--red);color:#fff">Confirm rejection</button>
+      <button class="btn btn--ghost" style="margin-top:10px" onclick="closeSheet()">Cancel</button>
+    </div>`);
+  $("#rejGo").addEventListener("click",()=>{
+    const val=$("#rejReason").value.trim();
+    if(!val){ $("#rejReason").closest(".field").classList.add("invalid"); return; }
+    decisions[key]={decision:"reject",reason:val,at:new Date().toISOString()};
+    saveDecisions(); closeSheet(); renderB(); showToast("Rejection logged"); setTimeout(closeSheet,10);
+  });
+}
+function openPromote(key){
+  const r=S.records.find(x=>(x.type+":"+x.id)===key);
+  openSheet(`
+    <h2>Promote “${esc(r?.name||"")}”?</h2>
+    <div class="warncard" style="margin:0 0 14px;background:rgba(0,229,255,.07);border-color:#0a5563">
+      <div><b style="color:var(--neon)">IMPLICIT VALIDATION</b>
+      <p style="color:var(--txt-dim)">Promotes run through <span style="font-family:var(--mono)">validate.py</span> first.
+      Re-running <span style="font-family:var(--mono)">build_bundle.py</span> + push is required to reach the apps.</p></div></div>
+    <div class="field"><label>Confirm name</label>
+      <input id="promName" value="${esc(r?.name||"")}" readonly/></div>
+    <div class="actions-sticky">
+      <button class="btn btn--primary" id="promGo" style="background:var(--green);color:#00250f">✓ Queue to promote</button>
+      <button class="btn btn--ghost" style="margin-top:10px" onclick="closeSheet()">Cancel</button>
+    </div>`);
+  $("#promGo").addEventListener("click",()=>{
+    decisions[key]={decision:"promote",at:new Date().toISOString()};
+    saveDecisions(); closeSheet(); renderB(); showToast("Queued to promote · validate first"); 
+  });
+}
+
+/* ============================================================
+   Router / events
+   ============================================================ */
+function switchTab(t){
+  S.tab=t;
+  $$(".nav button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.tab===t)));
+  $("#viewA").classList.toggle("hidden",t!=="A");
+  $("#viewB").classList.toggle("hidden",t!=="B");
+  $("#viewC").classList.toggle("hidden",t!=="C");
+  $("#chips").classList.toggle("hidden",t!=="A");
+  if(t==="A") renderA(); if(t==="B") renderB(); if(t==="C"&&!$("#f_name")) renderC();
+  window.scrollTo(0,0);
+}
+function render(){ if(S.tab==="A") renderA(); else if(S.tab==="B") renderB(); }
+
+document.addEventListener("click",e=>{
+  const nav=e.target.closest(".nav button"); if(nav) return switchTab(nav.dataset.tab);
+  const chip=e.target.closest(".chip"); if(chip){ S.filter=chip.dataset.filter; renderA(); return; }
+  const tb=e.target.closest("#tabsB button"); if(tb){ S.tabB=tb.dataset.tb; renderB(); return; }
+  const oc=e.target.closest("[data-open-concept]"); if(oc){ openDetail("concept:"+oc.dataset.openConcept); return; }
+  const act=e.target.closest("[data-act]"); if(act){ e.stopPropagation();
+    act.dataset.act==="promote"?openPromote(act.dataset.id):openReject(act.dataset.id); return; }
+  const card=e.target.closest(".card[data-id]"); if(card){ openDetail(card.dataset.id); return; }
+});
+$("#q").addEventListener("input",e=>{ S.query=e.target.value.trim(); if(S.tab!=="A") switchTab("A"); else renderA(); });
+
+/* service worker for offline (progressive enhancement) */
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+load();
+</script>
+</body>
+</html>
