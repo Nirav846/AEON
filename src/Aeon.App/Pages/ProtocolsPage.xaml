@@ -6,25 +6,21 @@
              Title="Protocols">
     <Grid RowDefinitions="Auto,*">
 
-        <Label x:Name="HeaderLabel"
-               FontSize="13" TextColor="{StaticResource Accent}" Padding="16,10" />
+        <Label x:Name="HeaderLabel" Style="{StaticResource SectionHint}" />
 
         <CollectionView x:Name="ProtocolsList" Grid.Row="1"
                         SelectionMode="Single"
                         SelectionChanged="OnProtocolSelected">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:ProtocolRow">
-                    <Border Stroke="LightGray" StrokeThickness="1"
-                            StrokeShape="RoundRectangle 12"
-                            Margin="12,6" Padding="16,14">
+                    <Border Style="{StaticResource CardBorder}">
                         <Grid ColumnDefinitions="*,Auto">
                             <VerticalStackLayout Spacing="4">
-                                <Label Text="{Binding Protocol.Name}" FontSize="17" FontAttributes="Bold" />
+                                <Label Text="{Binding Protocol.Name}" Style="{StaticResource CardTitle}" />
                                 <Label Text="{Binding Protocol.WorkToRest}" FontSize="14" />
-                                <Label Text="{Binding TargetSummary}" FontSize="13" TextColor="Gray" />
+                                <Label Text="{Binding TargetSummary}" Style="{StaticResource CardSubtitle}" />
                             </VerticalStackLayout>
-                            <Label Grid.Column="1" Text="&#x203A;" FontSize="26"
-                                   TextColor="{StaticResource Accent}" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="&#x203A;" Style="{StaticResource CardChevron}" />
                         </Grid>
                     </Border>
                 </DataTemplate>

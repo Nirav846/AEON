@@ -15,17 +15,14 @@
                         SelectionChanged="OnSportSelected">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:SportRow">
-                    <Border Stroke="LightGray" StrokeThickness="1"
-                            StrokeShape="RoundRectangle 12"
-                            Margin="12,6" Padding="16,14">
+                    <Border Style="{StaticResource CardBorder}">
                         <Grid ColumnDefinitions="*,Auto">
-                            <VerticalStackLayout Spacing="3">
-                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" />
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding Name}" Style="{StaticResource CardTitle}" />
                                 <Label Text="{Binding ComplexCount, StringFormat='{0} complexes'}"
-                                       FontSize="13" TextColor="Gray" />
+                                       Style="{StaticResource CardSubtitle}" />
                             </VerticalStackLayout>
-                            <Label Grid.Column="1" Text="&#x203A;" FontSize="26"
-                                   TextColor="{StaticResource Accent}" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="&#x203A;" Style="{StaticResource CardChevron}" />
                         </Grid>
                     </Border>
                 </DataTemplate>
@@ -39,9 +36,8 @@
                  cannot wrap and get clipped. -->
         <Label x:Name="FooterLabel" Grid.Row="2"
                HeightRequest="40" VerticalOptions="Center"
-               FontSize="12" TextColor="{StaticResource Accent}"
+               Style="{StaticResource StatusFooter}"
                LineBreakMode="TailTruncation"
-               HorizontalTextAlignment="Center"
-               Padding="16,0" />
+               HorizontalTextAlignment="Center" />
     </Grid>
 </ContentPage>

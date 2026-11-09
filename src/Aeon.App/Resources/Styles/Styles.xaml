@@ -410,4 +410,57 @@
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
     </Style>
 
+    <!-- Shared card + list typography. One definition each so every list screen
+         (Browse, Conditioning, Search, Workouts, Modalities, Protocols,
+         Categories, Roles) keeps identical padding, margin and colour, and the
+         card surface stays legible in dark mode instead of hardcoding
+         LightGray/Gray literals per page. -->
+
+    <Style TargetType="Border" x:Key="CardBorder">
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource CardStroke}, Dark={StaticResource CardStrokeDark}}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource CardSurface}, Dark={StaticResource CardSurfaceDark}}" />
+        <Setter Property="Margin" Value="12,6" />
+        <Setter Property="Padding" Value="16,14" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="CardTitle">
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="CardSubtitle">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="CardChevron">
+        <Setter Property="FontSize" Value="26" />
+        <Setter Property="TextColor" Value="{StaticResource Accent}" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="CardAccent">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SuccessText}, Dark={StaticResource SuccessTextDark}}" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="SectionHint">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="TextColor" Value="{StaticResource Accent}" />
+        <Setter Property="Padding" Value="16,10" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="StatusFooter">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{StaticResource Accent}" />
+        <Setter Property="Padding" Value="16,0" />
+    </Style>
+
+    <Style TargetType="VerticalStackLayout" x:Key="DetailBody">
+        <Setter Property="Padding" Value="16,10" />
+        <Setter Property="Spacing" Value="12" />
+    </Style>
+
 </ResourceDictionary>

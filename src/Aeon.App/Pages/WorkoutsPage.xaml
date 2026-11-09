@@ -14,16 +14,13 @@
                         SelectionChanged="OnWorkoutSelected">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:WorkoutRow">
-                    <Border Stroke="LightGray" StrokeThickness="1"
-                            StrokeShape="RoundRectangle 12"
-                            Margin="12,6" Padding="16,14">
+                    <Border Style="{StaticResource CardBorder}">
                         <Grid ColumnDefinitions="*,Auto">
-                            <VerticalStackLayout Spacing="3">
-                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" />
-                                <Label Text="{Binding Detail}" FontSize="13" TextColor="Gray" />
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding Name}" Style="{StaticResource CardTitle}" />
+                                <Label Text="{Binding Detail}" Style="{StaticResource CardSubtitle}" />
                             </VerticalStackLayout>
-                            <Label Grid.Column="1" Text="&#x203A;" FontSize="26"
-                                   TextColor="{StaticResource Accent}" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="&#x203A;" Style="{StaticResource CardChevron}" />
                         </Grid>
                     </Border>
                 </DataTemplate>
@@ -32,16 +29,17 @@
 
         <Label x:Name="EmptyLabel" Grid.Row="0" IsVisible="False"
                HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
-               FontSize="14" TextColor="Gray" Padding="32,0"
+               FontSize="14"
+               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
+               Padding="32,0"
                Text="No workouts yet.&#x0a;Open a complex or protocol, then tap Add to workout." />
 
         <!-- Same explicit-row treatment as the other tabs. Carries the store's recovery
              Notice when loading had to archive or restore something — surfaced, hidden from nobody. -->
         <Label x:Name="FooterLabel" Grid.Row="1"
                HeightRequest="40" VerticalOptions="Center"
-               FontSize="12" TextColor="{StaticResource Accent}"
+               Style="{StaticResource StatusFooter}"
                LineBreakMode="TailTruncation"
-               HorizontalTextAlignment="Center"
-               Padding="16,0" />
+               HorizontalTextAlignment="Center" />
     </Grid>
 </ContentPage>
