@@ -33,8 +33,10 @@ public sealed record ProtocolRow(ConditioningProtocol Protocol)
     /// <summary>
     /// Targets are free-form and context-dependent on modality (pace km/h, watts,
     /// seconds, grade, load, belt instruction), so the raw string is shown verbatim
-    /// and no unit label is invented. '-' is a deliberate "no target" marker on 8
-    /// records, so it renders as prose rather than looking like a data error.
+    /// and no unit label is invented. An empty string or a literal '-' still means
+    /// "no target set", so it renders as prose rather than looking like a data
+    /// error - every conditioning record now carries a real target, but the marker
+    /// is kept so a future no-target record degrades gracefully.
     /// </summary>
     public string TargetSummary
     {

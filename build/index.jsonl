@@ -117,6 +117,19 @@
 {"type": "complex", "id": 210, "name": "Single-Leg Stick to Sled Drive", "sport": "Tennis", "role": "All", "cat": "Knee Dom", "equip": ["Box", "Sled"]}
 {"type": "complex", "id": 211, "name": "Lateral Lunge to Pallof Brace", "sport": "Tennis", "role": "All", "cat": "Core", "equip": ["Bodyweight", "Cable"]}
 {"type": "complex", "id": 212, "name": "Cut Sequence to Max Stride Sprint", "sport": "Tennis", "role": "All", "cat": "Multi", "equip": ["Bodyweight"]}
+{"type": "complex", "id": 213, "name": "Impact Brace Hold", "sport": "Cricket", "role": "Batsman", "cat": "Core", "equip": ["Cable", "Partner"]}
+{"type": "complex", "id": 214, "name": "Rising Ball Cross Power", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Med Ball"]}
+{"type": "complex", "id": 215, "name": "Lunge-and-Recover Reset", "sport": "Cricket", "role": "Batsman", "cat": "Knee Dom", "equip": ["Partner"]}
+{"type": "complex", "id": 216, "name": "Ready-Stance Endurance Hold", "sport": "Cricket", "role": "Batsman", "cat": "Core", "equip": ["Partner"]}
+{"type": "complex", "id": 217, "name": "Checked Swing Arrest", "sport": "Cricket", "role": "Batsman", "cat": "Core", "equip": ["Band"]}
+{"type": "complex", "id": 218, "name": "First-Stride Ignition", "sport": "Cricket", "role": "Batsman", "cat": "Hip Dom", "equip": ["Band"]}
+{"type": "complex", "id": 219, "name": "Stride Load Absorption", "sport": "Cricket", "role": "Batsman", "cat": "Knee Dom", "equip": ["Box"]}
+{"type": "complex", "id": 220, "name": "One-Handed Defensive Brace", "sport": "Cricket", "role": "Batsman", "cat": "Core", "equip": ["Band"]}
+{"type": "complex", "id": 221, "name": "Fatigued Brace Hold", "sport": "Cricket", "role": "Batsman", "cat": "Core", "equip": ["Shuttle", "Bike"]}
+{"type": "complex", "id": 222, "name": "Impact-Grip Endurance", "sport": "Cricket", "role": "Batsman", "cat": "Primer", "equip": ["Tire", "Towel"]}
+{"type": "complex", "id": 223, "name": "Internal Rotation Range Primer", "sport": "Cricket", "role": "Batsman", "cat": "Primer", "equip": ["Plate"]}
+{"type": "complex", "id": 224, "name": "Visual Drop Reaction Step", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Partner", "Ball"]}
+{"type": "complex", "id": 225, "name": "High Reach Stabilization", "sport": "Cricket", "role": "Batsman", "cat": "Core", "equip": ["Dumbbell"]}
 {"type": "conditioning", "id": 1, "name": "Side-Deck Straddle Sprints", "sport": "Universal", "role": "Treadmill", "cat": "7s sprint/20s rest", "equip": []}
 {"type": "conditioning", "id": 2, "name": "High-Incline Power Hills", "sport": "Universal", "role": "Treadmill", "cat": "12s sprint/24s rest", "equip": []}
 {"type": "conditioning", "id": 3, "name": "Deadmill Sled Push", "sport": "Universal", "role": "Treadmill", "cat": "10s drive/30s rest", "equip": []}
@@ -143,8 +156,8 @@
 {"type": "conditioning", "id": 24, "name": "Lactate Continuous Clearance", "sport": "Cricket", "role": "Field", "cat": "200m fast/200m jog", "equip": []}
 {"type": "conditioning", "id": 25, "name": "15s/15s Eurofit MAS", "sport": "Cricket", "role": "Field", "cat": "15s/15s", "equip": []}
 {"type": "conditioning", "id": 26, "name": "Boundary Chase Arc", "sport": "Cricket", "role": "Field", "cat": "40m curve sprint + slide", "equip": []}
-{"type": "conditioning", "id": 27, "name": "5-10-15m Linear Decel Shuttle", "sport": "Cricket", "role": "Field", "cat": "-", "equip": []}
-{"type": "conditioning", "id": 28, "name": "Curved S-Run Agility", "sport": "Cricket", "role": "Field", "cat": "-", "equip": []}
+{"type": "conditioning", "id": 27, "name": "5-10-15m Linear Decel Shuttle", "sport": "Cricket", "role": "Field", "cat": "3-4 sets / 90s rest", "equip": []}
+{"type": "conditioning", "id": 28, "name": "Curved S-Run Agility", "sport": "Cricket", "role": "Field", "cat": "3-4 sets / 90s rest", "equip": []}
 {"type": "conditioning", "id": 29, "name": "Compromised Run (Sled Sim)", "sport": "Hyrox", "role": "Treadmill & Sled", "cat": "1km Run (Moderate) + 50m Heavy Sled Push / 90s Rest", "equip": []}
 {"type": "conditioning", "id": 30, "name": "Lactic \"Rox\" Shandy", "sport": "Hyrox", "role": "SkiErg & Row", "cat": "500m Ski / 500m Row (Continuous) x 4 Rounds", "equip": []}
 {"type": "conditioning", "id": 31, "name": "Wall Ball / Run Threshold", "sport": "Hyrox", "role": "Court & Treadmill", "cat": "400m Run + 25 Wall Balls x 5 Rounds", "equip": []}

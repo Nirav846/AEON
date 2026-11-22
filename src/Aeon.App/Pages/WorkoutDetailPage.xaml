@@ -7,14 +7,14 @@
     </ContentPage.ToolbarItems>
     <Grid RowDefinitions="*,Auto">
         <ScrollView Grid.Row="0">
-            <VerticalStackLayout x:Name="Body" Padding="16,10" Spacing="6" />
+            <VerticalStackLayout x:Name="Body" Style="{StaticResource DetailBody}" />
         </ScrollView>
         <VerticalStackLayout Grid.Row="1" Padding="16,10" Spacing="8">
             <Button x:Name="ExportButton" Text="Export PDF &amp; share" Clicked="OnExport"
                     BackgroundColor="{StaticResource Accent}" TextColor="White"
                     FontAttributes="Bold" HeightRequest="48" />
             <Button Text="Delete workout" Clicked="OnDelete"
-                    BackgroundColor="#C0392B" TextColor="White"
+                    BackgroundColor="{StaticResource Danger}" TextColor="White"
                     HeightRequest="44" />
         </VerticalStackLayout>
     </Grid>

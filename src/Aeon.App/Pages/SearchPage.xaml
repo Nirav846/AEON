@@ -11,7 +11,8 @@
                    TextChanged="OnSearchTextChanged" />
 
         <Label x:Name="CountLabel" Grid.Row="1"
-               FontSize="13" TextColor="Gray" />
+               FontSize="13"
+               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
 
         <CollectionView x:Name="ResultsList" Grid.Row="2"
                         SelectionMode="Single"
@@ -19,19 +20,17 @@
             <CollectionView.EmptyView>
                 <Label x:Name="EmptyLabel"
                        Text="Type to search the database"
-                       FontSize="14" TextColor="Gray"
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
                        HorizontalOptions="Center" Margin="24" />
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:SearchRow">
-                    <Border Stroke="LightGray" StrokeThickness="1"
-                            StrokeShape="RoundRectangle 12"
-                            Margin="4,4" Padding="14,12">
-                        <VerticalStackLayout Spacing="3">
-                            <Label Text="{Binding Complex.Name}" FontSize="16" FontAttributes="Bold" />
-                            <Label Text="{Binding Complex.Focus}" FontSize="13" TextColor="Gray" />
-                            <Label Text="{Binding MatchedIn}" FontSize="12"
-                                   TextColor="{AppThemeBinding Light=#2F6D42, Dark=#7ED19A}" />
+                    <Border Style="{StaticResource CardBorder}">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="{Binding Complex.Name}" Style="{StaticResource CardTitle}" />
+                            <Label Text="{Binding Complex.Focus}" Style="{StaticResource CardSubtitle}" />
+                            <Label Text="{Binding MatchedIn}" Style="{StaticResource CardAccent}" />
                         </VerticalStackLayout>
                     </Border>
                 </DataTemplate>

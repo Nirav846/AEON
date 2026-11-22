@@ -8,19 +8,17 @@
                     SelectionChanged="OnIdeaSelected">
         <CollectionView.EmptyView>
             <Label Text="No complexes for this combination"
-                   FontSize="14" TextColor="Gray"
+                   FontSize="14"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
                    HorizontalOptions="Center" Margin="24" />
         </CollectionView.EmptyView>
         <CollectionView.ItemTemplate>
             <DataTemplate x:DataType="models:IdeaRow">
-                <Border Stroke="LightGray" StrokeThickness="1"
-                        StrokeShape="RoundRectangle 12"
-                        Margin="12,6" Padding="16,14">
+                <Border Style="{StaticResource CardBorder}">
                     <VerticalStackLayout Spacing="4">
-                        <Label Text="{Binding Complex.Name}" FontSize="17" FontAttributes="Bold" />
-                        <Label Text="{Binding Complex.Focus}" FontSize="13" TextColor="Gray" />
-                        <Label Text="{Binding GoalsPreview}" FontSize="12"
-                               TextColor="{AppThemeBinding Light=#2F6D42, Dark=#7ED19A}"
+                        <Label Text="{Binding Complex.Name}" Style="{StaticResource CardTitle}" />
+                        <Label Text="{Binding Complex.Focus}" Style="{StaticResource CardSubtitle}" />
+                        <Label Text="{Binding GoalsPreview}" Style="{StaticResource CardAccent}"
                                IsVisible="{Binding HasGoals}" />
                     </VerticalStackLayout>
                 </Border>
