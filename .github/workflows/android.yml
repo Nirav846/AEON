@@ -74,8 +74,31 @@ jobs:
           name: aeon-app-${{ matrix.format }}
           path: artifacts/**/*.${{ matrix.format }}
 
-      - name: Debug Info
-        run: |
-          ls -la artifacts/
-          echo "Build format: ${{ matrix.format }}"
-          echo "Configuration: ${{ github.event.inputs.configuration }}"
+      - name: Create GitHub Release
+        if: github.ref == 'refs/main' && github.event_name == 'push' && github.event.inputs.configuration == 'Release'
+        uses: softprops/gh-action-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "AEON Android v1.0.${{ github.run_number }}"
+          body: |
+            ## AEON Android App Release
+            
+            ### Build Configuration: Release
+            
+            ### Artifacts
+            - **APK**: Release-mode signed Android Package Kit
+            - **AAB**: Android App Bundle (for Google Play Store)
+            
+            ### What's Built
+            - dotnet MAUI Android app with Release configuration
+            - Android ARM64 architecture
+            - Self-contained .NET runtime included
+          
+          files: |
+            artifacts/**/*.apk
+            artifacts/**/*.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+permissions:
+  contents: write
+  id-token: write
