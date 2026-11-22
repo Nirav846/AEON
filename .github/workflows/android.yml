@@ -80,6 +80,7 @@ jobs:
         with:
           name: aeon-app-${{ matrix.format }}
           path: artifacts/**/*.${{ matrix.format }}
+          if-no-files-found: warn
 
       - name: Create GitHub Release
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
