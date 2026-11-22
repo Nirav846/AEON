@@ -68,11 +68,14 @@ jobs:
 
       - name: Publish signed Release
         if: env.CONFIG == 'Release' && env.KEYSTORE_B64 != ''
-        run: dotnet publish src/Aeon.App/Aeon.App.csproj -c Release -f net10.0-android -r android-arm64 -p:AndroidPackageFormat=${{ matrix.format }} -p:InstallAndroidDependencies=true -p:AcceptAndroidSDKLicenses=True -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$RUNNER_TEMP/keystore.jks" -p:AndroidSigningKeyAlias="$KEY_ALIAS" -p:AndroidSigningKeyPass="$KEY_PASS" -p:AndroidSigningStorePass="$STORE_PASS" -o ./artifacts
+        # ApplicationVersion (versionCode) must rise on every release or Android refuses
+        # the sideloaded update; ApplicationDisplayVersion is what UpdateService compares
+        # against the v1.0.<run_number> release tag.
+        run: dotnet publish src/Aeon.App/Aeon.App.csproj -c Release -f net10.0-android -r android-arm64 -p:AndroidPackageFormat=${{ matrix.format }} -p:InstallAndroidDependencies=true -p:AcceptAndroidSDKLicenses=True -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion=1.0.${{ github.run_number }} -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$RUNNER_TEMP/keystore.jks" -p:AndroidSigningKeyAlias="$KEY_ALIAS" -p:AndroidSigningKeyPass="$KEY_PASS" -p:AndroidSigningStorePass="$STORE_PASS" -o ./artifacts
 
       - name: Publish unsigned / Debug
         if: env.CONFIG == 'Debug' || env.KEYSTORE_B64 == ''
-        run: dotnet publish src/Aeon.App/Aeon.App.csproj -c ${{ env.CONFIG }} -f net10.0-android -r android-arm64 -p:AndroidPackageFormat=${{ matrix.format }} -p:InstallAndroidDependencies=true -p:AcceptAndroidSDKLicenses=True -o ./artifacts
+        run: dotnet publish src/Aeon.App/Aeon.App.csproj -c ${{ env.CONFIG }} -f net10.0-android -r android-arm64 -p:AndroidPackageFormat=${{ matrix.format }} -p:InstallAndroidDependencies=true -p:AcceptAndroidSDKLicenses=True -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion=1.0.${{ github.run_number }} -o ./artifacts
 
       - name: Keep only signed files when both exist
         run: if ls artifacts/*-Signed.${{ matrix.format }} >/dev/null 2>&1; then find artifacts -name '*.${{ matrix.format }}' ! -name '*-Signed.${{ matrix.format }}' -delete; fi

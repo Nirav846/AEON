@@ -17,6 +17,11 @@ public partial class SportsPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        // Fire-and-forget: an update prompt must never hold up the browse list, and the
+        // service swallows its own network failures.
+        _ = UpdateService.PromptIfAvailableAsync(this);
+
         if (_bundle.Data is not null)
         {
             Populate();
@@ -53,6 +58,11 @@ public partial class SportsPage : ContentPage
 
         FooterLabel.Text =
             $"bundle {_bundle.Version} · {_bundle.Data!.GeneratedAt:yyyy-MM-dd} · {source}";
+    }
+
+    private async void OnCheckForUpdates(object? sender, EventArgs e)
+    {
+        await UpdateService.PromptIfAvailableAsync(this, force: true);
     }
 
     private async void OnSportSelected(object? sender, SelectionChangedEventArgs e)

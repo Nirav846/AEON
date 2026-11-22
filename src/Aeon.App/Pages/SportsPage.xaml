@@ -4,6 +4,11 @@
              xmlns:models="clr-namespace:Aeon.App.Models"
              x:Class="Aeon.App.Pages.SportsPage"
              Title="Browse">
+    <ContentPage.ToolbarItems>
+        <!-- Manual check. The automatic one runs once per launch, and a user sent to
+             Android's "install unknown apps" screen needs a way to retry afterwards. -->
+        <ToolbarItem Text="Update" Clicked="OnCheckForUpdates" />
+    </ContentPage.ToolbarItems>
     <Grid RowDefinitions="Auto,*,Auto">
 
         <ActivityIndicator x:Name="Loading" Grid.Row="0"

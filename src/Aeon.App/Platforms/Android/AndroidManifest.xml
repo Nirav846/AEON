@@ -1,6 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
+	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true">
+		<!-- Sideloaded self-update. UpdateService.Install hands the downloaded APK to
+		     the system installer as a content:// URI; without this provider the
+		     installer cannot read the file and the intent dies with a
+		     FileUriExposedException. The authority is ${applicationId}.fileprovider,
+		     which the Android build substitutes, and matches the name passed to
+		     FileProvider.GetUriForFile. Reachable paths are limited to the cache
+		     directory the APK is written to (Resources/xml/file_paths.xml). -->
+		<provider android:name="androidx.core.content.FileProvider"
+		          android:authorities="${applicationId}.fileprovider"
+		          android:exported="false"
+		          android:grantUriPermissions="true">
+			<meta-data android:name="android.support.FILE_PROVIDER_PATHS"
+			           android:resource="@xml/file_paths" />
+		</provider>
+	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
+	<!-- API 26+ requirement for asking the package installer to install a downloaded
+	     APK. The user still has to grant "install unknown apps" for AEON once. -->
+	<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 </manifest>

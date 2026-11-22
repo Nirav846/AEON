@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Exposes only the app cache directory, which is where UpdateService writes
+     update.apk before handing it to the system installer. Nothing else in app
+     storage is reachable through the FileProvider. -->
+<paths>
+	<cache-path name="updates" path="." />
+</paths>

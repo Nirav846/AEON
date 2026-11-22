@@ -73,3 +73,29 @@ sets/reps scheme. Do not guess a value here; wait for the real one.
    Add `--dry-run` first to preview without writing anything.
 6. Run `python3 scripts/build_index.py` to refresh the index.
 7. Run `python3 scripts/validate.py` (no args) for a full sanity check.
+
+## Android app: sideloaded, self-updating
+
+`.github/workflows/android.yml` publishes a signed APK (and an AAB) and, on every
+push to `main`, attaches both to a GitHub Release tagged `v1.0.<run_number>`.
+The installed app checks that release on launch and, when the tag is newer than
+its own display version, offers to download the APK and hands it to Android's
+installer. Android always shows its own "Update?" prompt; there is no silent
+install path for a sideloaded app.
+
+Three things must stay true or updates silently stop working:
+
+1. **Same signing key on every build.** Android treats a differently signed APK
+   as a different app and refuses the update. If a build signed with another key
+   (including a local debug build) was ever installed, uninstall it once.
+2. **Rising version code.** `ApplicationVersion` is the run number, so it always
+   increases; the release tag and `ApplicationDisplayVersion` are `1.0.<run_number>`.
+3. **Public repository.** The app reads release assets unauthenticated, so no
+   token ships in the APK. A private repo would need the APK plus a small
+   `version.json` hosted somewhere public instead. If AEON ever goes to Google
+   Play, use Play's in-app update API rather than this path.
+
+`Services/UpdateService.cs` does the check and install; the Browse tab's
+**Update** toolbar item re-runs it on demand, which is how a user retries after
+granting "install unknown apps".
+
