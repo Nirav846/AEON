@@ -4,3 +4,7 @@ obj/
 
 __pycache__/
 *.pyc
+*.jks
+*.keystore
+b64.txt
+base64.txt
