@@ -33,6 +33,8 @@ jobs:
 
       - name: Install Android SDK
         uses: actions/setup-android@v4
+        with:
+          api-level: 33
 
       - name: Restore dependencies
         run: dotnet restore src/Aeon.App/Aeon.App.csproj
