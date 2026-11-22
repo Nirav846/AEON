@@ -37,21 +37,23 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore src/Aeon.App/Aeon.App.csproj
 
-      - name: Build Android ${{ matrix.format.upper() }}
+      - name: Build Android APK
+        if: matrix.format == 'apk'
         run: |
-          if ${{ matrix.format == 'apk' ]]; then
-            dotnet publish src/Aeon.App/Aeon.App.csproj \
-              -c ${{ github.event.inputs.configuration }} -r android-arm64 \
-              --self-contained true \
-              -p:AndroidPackageFormat=apk \
-              -p:OutputDir=./artifacts/
-          else
-            dotnet publish src/Aeon.App/Aeon.App.csproj \
-              -c ${{ github.event.inputs.configuration }} -r android-arm64 \
-              --self-contained true \
-              -p:AndroidPackageFormat=aab \
-              -p:OutputDir=./artifacts/
-          fi
+          dotnet publish src/Aeon.App/Aeon.App.csproj \
+            -c ${{ github.event.inputs.configuration }} -r android-arm64 \
+            --self-contained true \
+            -p:AndroidPackageFormat=apk \
+            -p:OutputDir=./artifacts/
+
+      - name: Build Android AAB
+        if: matrix.format == 'aab'
+        run: |
+          dotnet publish src/Aeon.App/Aeon.App.csproj \
+            -c ${{ github.event.inputs.configuration }} -r android-arm64 \
+            --self-contained true \
+            -p:AndroidPackageFormat=aab \
+            -p:OutputDir=./artifacts/
 
       - name: Sign APK (Release only)
         if: matrix.format == 'apk' && github.event.inputs.configuration == 'Release'
