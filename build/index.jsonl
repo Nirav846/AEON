@@ -130,6 +130,10 @@
 {"type": "complex", "id": 223, "name": "Internal Rotation Range Primer", "sport": "Cricket", "role": "Batsman", "cat": "Primer", "equip": ["Plate"]}
 {"type": "complex", "id": 224, "name": "Visual Drop Reaction Step", "sport": "Cricket", "role": "Batsman", "cat": "Multi", "equip": ["Partner", "Ball"]}
 {"type": "complex", "id": 225, "name": "High Reach Stabilization", "sport": "Cricket", "role": "Batsman", "cat": "Core", "equip": ["Dumbbell"]}
+{"type": "complex", "id": 226, "name": "Hinge Load & Broad Jump", "sport": "Tennis", "role": "All", "cat": "Hip Dom", "equip": ["Trap Bar"]}
+{"type": "complex", "id": 227, "name": "Face Pull & Prone Reach", "sport": "Tennis", "role": "All", "cat": "Pull", "equip": ["Cable"]}
+{"type": "complex", "id": 228, "name": "T-Spine Open & Overhead Reach", "sport": "Tennis", "role": "All", "cat": "Primer", "equip": ["Band"]}
+{"type": "complex", "id": 229, "name": "Calf Load & Pogo", "sport": "Tennis", "role": "All", "cat": "Knee Dom", "equip": ["Dumbbell"]}
 {"type": "conditioning", "id": 1, "name": "Side-Deck Straddle Sprints", "sport": "Universal", "role": "Treadmill", "cat": "7s sprint/20s rest", "equip": []}
 {"type": "conditioning", "id": 2, "name": "High-Incline Power Hills", "sport": "Universal", "role": "Treadmill", "cat": "12s sprint/24s rest", "equip": []}
 {"type": "conditioning", "id": 3, "name": "Deadmill Sled Push", "sport": "Universal", "role": "Treadmill", "cat": "10s drive/30s rest", "equip": []}
