@@ -16,97 +16,79 @@ on:
           - Debug
           - Release
 
+permissions:
+  contents: write
+
+env:
+  CONFIG: ${{ github.event.inputs.configuration || 'Release' }}
+
 jobs:
   build-android:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         format: [apk, aab]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v5
 
       - name: Set up .NET 10
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
 
-      - name: Install Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          api-level: 33
-
       - name: Restore dependencies
         run: dotnet restore src/Aeon.App/Aeon.App.csproj
-
-      - name: Build Android APK
-        if: matrix.format == 'apk'
-        run: |
-          dotnet publish src/Aeon.App/Aeon.App.csproj \
-            -c Release -f net10.0-android -r android-arm64 \
-            -p:AndroidPackageFormat=apk \
-            -p:AndroidKeyStore=true \
-            -p:AndroidSigningKeyStore="$RUNNER_TEMP/keystore.jks" \
-            -p:AndroidSigningKeyAlias=${{ secrets.ANDROID_KEY_ALIAS }} \
-            -p:AndroidSigningKeyPass=${{ secrets.ANDROID_KEY_PASSWORD }} \
-            -p:AndroidSigningStorePass=${{ secrets.ANDROID_STORE_PASSWORD }} \
-            -o ./artifacts
-
-      - name: Build Android AAB
-        if: matrix.format == 'aab'
-        run: |
-          dotnet publish src/Aeon.App/Aeon.App.csproj \
-            -c Release -f net10.0-android -r android-arm64 \
-            -p:AndroidPackageFormat=aab \
-            -p:AndroidKeyStore=true \
-            -p:AndroidSigningKeyStore="$RUNNER_TEMP/keystore.jks" \
-            -p:AndroidSigningKeyAlias=${{ secrets.ANDROID_KEY_ALIAS }} \
-            -p:AndroidSigningKeyPass=${{ secrets.ANDROID_KEY_PASSWORD }} \
-            -p:AndroidSigningStorePass=${{ secrets.ANDROID_STORE_PASSWORD }} \
-            -o ./artifacts
 
       - name: Decode keystore
         if: env.CONFIG == 'Release'
         run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/keystore.jks"
 
-      - name: Upload APK/AAB
+      - name: Publish Release (signed)
+        if: env.CONFIG == 'Release'
+        run: dotnet publish src/Aeon.App/Aeon.App.csproj -c Release -f net10.0-android -r android-arm64 -p:AndroidPackageFormat=${{ matrix.format }} -p:InstallAndroidDependencies=true -p:AcceptAndroidSDKLicenses=True -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$RUNNER_TEMP/keystore.jks" -p:AndroidSigningKeyAlias=${{ secrets.ANDROID_KEY_ALIAS }} -p:AndroidSigningKeyPass=${{ secrets.ANDROID_KEY_PASSWORD }} -p:AndroidSigningStorePass=${{ secrets.ANDROID_STORE_PASSWORD }} -o ./artifacts
+
+      - name: Publish Debug
+        if: env.CONFIG == 'Debug'
+        run: dotnet publish src/Aeon.App/Aeon.App.csproj -c Debug -f net10.0-android -r android-arm64 -p:AndroidPackageFormat=${{ matrix.format }} -p:InstallAndroidDependencies=true -p:AcceptAndroidSDKLicenses=True -o ./artifacts
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: aeon-app-${{ matrix.format }}
           path: artifacts/**/*.${{ matrix.format }}
-          if-no-files-found: warn
+          if-no-files-found: error
+
+  release:
+    needs: build-android
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
 
       - name: Create GitHub Release
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
-          name: "AEON Android v1.0.${{ github.run_number }}"
+          name: AEON Android v1.0.${{ github.run_number }}
           body: |
-            ## AEON Android App Release
-            
-            ### Build Configuration: Release
-            
-            ### Artifacts
-            - **APK**: Release-mode signed Android Package Kit
-            - **AAB**: Android App Bundle (for Google Play Store)
-            
-            ### What's Built
-            - dotnet MAUI Android app with Release configuration
-            - Android ARM64 architecture
-            - Self-contained .NET runtime included
-          
+            AEON Android release (.NET MAUI, android-arm64)
+            APK: signed package for sideloading
+            AAB: Android App Bundle for Google Play
           files: |
             artifacts/**/*.apk
             artifacts/**/*.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-permissions:
-  contents: write
-  id-token: write
