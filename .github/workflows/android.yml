@@ -75,8 +75,6 @@ jobs:
         if: env.CONFIG == 'Release'
         run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/keystore.jks"
 
-      - name: Publish (Release, signed)
-
       - name: Upload APK/AAB
         uses: actions/upload-artifact@v4
         with:
